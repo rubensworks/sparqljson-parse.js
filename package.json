@@ -37,9 +37,11 @@
     "@types/minimist": "^1.2.0",
     "@types/rdf-data-model": "^1.0.1",
     "@types/rdf-js": "^1.0.1",
+    "arrayify-stream": "^1.0.0",
     "coveralls": "^3.0.0",
     "jest": "^21.2.1",
     "pre-commit": "^1.2.2",
+    "streamify-string": "^1.0.1",
     "ts-jest": "^21.2.3",
     "tslint": "^5.8.0",
     "tslint-eslint-rules": "^4.1.1",
@@ -70,6 +72,7 @@
     "prepare": "npm run build"
   },
   "dependencies": {
+    "JSONStream": "^1.3.3",
     "rdf-data-model": "^1.0.0"
   }
 }
