@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/rubensworks/sparqljson-parse.js.svg?branch=master)](https://travis-ci.org/rubensworks/sparqljson-parse.js)
 [![Coverage Status](https://coveralls.io/repos/github/rubensworks/sparqljson-parse.js/badge.svg?branch=master)](https://coveralls.io/github/rubensworks/sparqljson-parse.js?branch=master)
-[![npm version](https://badge.fury.io/js/sparqljson-parse.svg)](https://www.npmjs.com/package/sparqljson-parse)
+[![npm version](https://badge.fury.io/js/sparqljson-parse.svg)](https://www.npmjs.com/package/sparqljson-parse) [![Greenkeeper badge](https://badges.greenkeeper.io/rubensworks/sparqljson-parse.js.svg)](https://greenkeeper.io/)
 
 A utility package that allows you to parse [SPARQL JSON](https://www.w3.org/TR/sparql11-results-json/) results
 in a convenient [RDFJS](http://rdf.js.org/)-based datastructure.
