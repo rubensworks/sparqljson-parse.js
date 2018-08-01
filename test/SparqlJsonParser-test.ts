@@ -168,4 +168,32 @@ describe('SparqlJsonParser', () => {
       });
     });
   });
+
+  describe('#parseJsonBoolean', () => {
+    it('should convert an empty SPARQL JSON response', () => {
+      return expect(() => parser.parseJsonBoolean({})).toThrow();
+    });
+
+    it('should convert an true SPARQL JSON boolean response', () => {
+      return expect(parser.parseJsonBoolean({ boolean: true })).toEqual(true);
+    });
+
+    it('should convert an false SPARQL JSON boolean response', () => {
+      return expect(parser.parseJsonBoolean({ boolean: false })).toEqual(false);
+    });
+  });
+
+  describe('#parseJsonBooleanStream', () => {
+    it('should reject on an empty SPARQL JSON response', async () => {
+      return expect(parser.parseJsonBooleanStream(streamifyString(`{}`))).rejects.toBeTruthy();
+    });
+
+    it('should convert a true SPARQL JSON boolean response', async () => {
+      return expect(await parser.parseJsonBooleanStream(streamifyString(`{ "boolean": true }`))).toEqual(true);
+    });
+
+    it('should convert a false SPARQL JSON boolean response', async () => {
+      return expect(await parser.parseJsonBooleanStream(streamifyString(`{ "boolean": true }`))).toEqual(true);
+    });
+  });
 });

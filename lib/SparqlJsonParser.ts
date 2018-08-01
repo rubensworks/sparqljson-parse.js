@@ -18,7 +18,7 @@ export class SparqlJsonParser {
   }
 
   /**
-   * Convert a SPARQL JSON response to an array of bindings objects.
+   * Convert a SPARQL JSON bindings response to an array of bindings objects.
    * @param sparqlResponse A SPARQL JSON response.
    * @return {IBindings[]} An array of bindings.
    */
@@ -27,7 +27,7 @@ export class SparqlJsonParser {
   }
 
   /**
-   * Convert a SPARQL JSON response stream to a stream of bindings objects.
+   * Convert a SPARQL JSON bindings response stream to a stream of bindings objects.
    * @param {NodeJS.ReadableStream} sparqlResponseStream A SPARQL JSON response stream.
    * @return {NodeJS.ReadableStream} A stream of bindings.
    */
@@ -66,6 +66,33 @@ export class SparqlJsonParser {
       bindings[this.prefixVariableQuestionMark ? ('?' + key) : key] = value;
     }
     return bindings;
+  }
+
+  /**
+   * Convert a SPARQL JSON boolean response to a boolean.
+   * This will throw an error if the given reponse was not a valid boolean response.
+   * @param sparqlResponse A SPARQL JSON response.
+   * @return {IBindings[]} An array of bindings.
+   */
+  public parseJsonBoolean(sparqlResponse: any): boolean {
+    if ('boolean' in sparqlResponse) {
+      return sparqlResponse.boolean;
+    }
+    throw new Error('No valid ASK response was found.');
+  }
+
+  /**
+   * Convert a SPARQL JSON boolean response stream to a promise resolving to a boolean.
+   * This will reject if the given reponse was not a valid boolean response.
+   * @param {NodeJS.ReadableStream} sparqlResponseStream A SPARQL JSON response stream.
+   * @return {NodeJS.ReadableStream} A stream of bindings.
+   */
+  public parseJsonBooleanStream(sparqlResponseStream: NodeJS.ReadableStream): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      sparqlResponseStream.pipe(require('JSONStream').parse('boolean'))
+        .on('data', resolve)
+        .on('end', () => reject(new Error('No valid ASK response was found.')));
+    });
   }
 
 }

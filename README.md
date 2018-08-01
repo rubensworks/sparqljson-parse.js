@@ -88,12 +88,26 @@ sparqlJsonParser.parseJsonResults(sparqlJsonresponse);
 // This will output [ { '?book': namedNode('http://example.org/book/book1') } ]
 ```
 
+### Convert a full SPARQL JSON boolean response
+
+```javascript
+const sparqlJsonresponse = {
+                             "head": {},
+                             "boolean": true
+                           };
+sparqlJsonParser.parseJsonBoolean(sparqlJsonresponse);
+// This will output true
+```
+
 ### Convert a SPARQL JSON stream
 
 If you have many query results, then a streaming-based approach might be more efficient.
 In this case, you can use the `sparqlJsonParser.parseJsonResultsStream` method,
 which takes a Node readable stream of SPARQL JSON results as a text stream,
 and outputs a stream of parsed bindings.
+
+`sparqlJsonParser.parseJsonBooleanStream` also takes a stream as input,
+but it returns a promise that resolves to a boolean.
 
 ## License
 This software is written by [Ruben Taelman](http://rubensworks.net/).
