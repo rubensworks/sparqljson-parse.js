@@ -59,7 +59,8 @@
       "ts",
       "js"
     ],
-    "collectCoverage": true
+    "collectCoverage": true,
+    "testEnvironment": "node"
   },
   "scripts": {
     "test": "jest ${1}",
