@@ -59,8 +59,7 @@
       "ts",
       "js"
     ],
-    "collectCoverage": true,
-    "mapCoverage": true
+    "collectCoverage": true
   },
   "scripts": {
     "test": "jest ${1}",
