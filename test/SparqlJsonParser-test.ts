@@ -1,4 +1,5 @@
 import {blankNode, literal, namedNode} from "rdf-data-model";
+import {PassThrough} from "stream";
 import {SparqlJsonParser} from "../lib/SparqlJsonParser";
 const arrayifyStream = require('arrayify-stream');
 const streamifyString = require('streamify-string');
@@ -113,6 +114,12 @@ describe('SparqlJsonParser', () => {
         { '?book': namedNode('http://example.org/book/book5') },
 ]);
     });
+
+    it('should emit an error on an erroring stream', async () => {
+      const errorStream = new PassThrough();
+      errorStream._read = () => errorStream.emit('error', new Error('Some stream error'));
+      return expect(arrayifyStream(parser.parseJsonResultsStream(errorStream))).rejects.toBeTruthy();
+    });
   });
 
   describe('#parseJsonBindings', () => {
@@ -194,6 +201,12 @@ describe('SparqlJsonParser', () => {
 
     it('should convert a false SPARQL JSON boolean response', async () => {
       return expect(await parser.parseJsonBooleanStream(streamifyString(`{ "boolean": true }`))).toEqual(true);
+    });
+
+    it('should reject on an erroring stream', async () => {
+      const errorStream = new PassThrough();
+      errorStream._read = () => errorStream.emit('error', new Error('Some stream error'));
+      return expect(parser.parseJsonBooleanStream(errorStream)).rejects.toBeTruthy();
     });
   });
 });

@@ -32,8 +32,11 @@ export class SparqlJsonParser {
    * @return {NodeJS.ReadableStream} A stream of bindings.
    */
   public parseJsonResultsStream(sparqlResponseStream: NodeJS.ReadableStream): NodeJS.ReadableStream {
-    return sparqlResponseStream.pipe(require('JSONStream').parse('results.bindings.*'))
+    sparqlResponseStream.on('error', (error) => resultStream.emit('error', error));
+    const resultStream = sparqlResponseStream
+      .pipe(require('JSONStream').parse('results.bindings.*'))
       .pipe(new SparqlJsonBindingsTransformer(this));
+    return resultStream;
   }
 
   /**
@@ -89,6 +92,7 @@ export class SparqlJsonParser {
    */
   public parseJsonBooleanStream(sparqlResponseStream: NodeJS.ReadableStream): Promise<boolean> {
     return new Promise((resolve, reject) => {
+      sparqlResponseStream.on('error', reject);
       sparqlResponseStream.pipe(require('JSONStream').parse('boolean'))
         .on('data', resolve)
         .on('end', () => reject(new Error('No valid ASK response was found.')));
