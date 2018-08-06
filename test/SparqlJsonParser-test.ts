@@ -1,4 +1,4 @@
-import {blankNode, literal, namedNode} from "rdf-data-model";
+import {blankNode, literal, namedNode} from "@rdfjs/data-model";
 import {PassThrough} from "stream";
 import {SparqlJsonParser} from "../lib/SparqlJsonParser";
 const arrayifyStream = require('arrayify-stream');
@@ -14,7 +14,7 @@ describe('SparqlJsonParser', () => {
     });
 
     it('should have the default data factory', () => {
-      return expect((<any> optionlessInstance).dataFactory).toBe(require('rdf-data-model'));
+      return expect((<any> optionlessInstance).dataFactory).toBe(require('@rdfjs/data-model'));
     });
 
     it('should not prefix variables with a question mark', () => {
@@ -30,7 +30,7 @@ describe('SparqlJsonParser', () => {
     });
 
     it('should have the default data factory', () => {
-      return expect((<any> optionsEmptyInstance).dataFactory).toBe(require('rdf-data-model'));
+      return expect((<any> optionsEmptyInstance).dataFactory).toBe(require('@rdfjs/data-model'));
     });
 
     it('should not prefix variables with a question mark', () => {

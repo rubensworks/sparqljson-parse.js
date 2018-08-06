@@ -1,4 +1,4 @@
-import * as DefaultDataFactory from "rdf-data-model";
+import * as DefaultDataFactory from "@rdfjs/data-model";
 import * as RDF from "rdf-js";
 import {SparqlJsonBindingsTransformer} from "./SparqlJsonBindingsTransformer";
 
