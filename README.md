@@ -49,7 +49,7 @@ This library automatically converts all SPARQL JSON result values to their respe
 ### Create a new parser
 
 ```javascript
-import {SparqlJsonParser} from "../lib/SparqlJsonParser";
+import {SparqlJsonParser} from "sparqljson-parse";
 
 const sparqlJsonParser = new SparqlJsonParser();
 ```
