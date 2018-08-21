@@ -236,7 +236,7 @@ describe('SparqlJsonParser', () => {
     });
 
     it('should convert a false SPARQL JSON boolean response', async () => {
-      return expect(await parser.parseJsonBooleanStream(streamifyString(`{ "boolean": true }`))).toEqual(true);
+      return expect(await parser.parseJsonBooleanStream(streamifyString(`{ "boolean": false }`))).toEqual(false);
     });
 
     it('should reject on an erroring stream', async () => {
