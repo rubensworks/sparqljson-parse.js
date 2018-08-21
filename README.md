@@ -106,6 +106,14 @@ In this case, you can use the `sparqlJsonParser.parseJsonResultsStream` method,
 which takes a Node readable stream of SPARQL JSON results as a text stream,
 and outputs a stream of parsed bindings.
 
+Optionally, you can also retrieve the variables inside the `head`
+as follows by listening to the `variables` event:
+```
+sparqlJsonParser.parseJsonResultsStream(myStream)
+    .on('variables', (variables: RDF.Variable[]) => console.log(variables))
+    .on('data', (bindings: IBindings) => console.log(bindings));
+```
+
 `sparqlJsonParser.parseJsonBooleanStream` also takes a stream as input,
 but it returns a promise that resolves to a boolean.
 
