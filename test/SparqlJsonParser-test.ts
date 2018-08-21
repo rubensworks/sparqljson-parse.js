@@ -1,4 +1,5 @@
-import {blankNode, literal, namedNode} from "@rdfjs/data-model";
+import {blankNode, literal, namedNode, variable} from "@rdfjs/data-model";
+import "jest-rdf";
 import {PassThrough} from "stream";
 import {SparqlJsonParser} from "../lib/SparqlJsonParser";
 const arrayifyStream = require('arrayify-stream');
@@ -86,6 +87,7 @@ describe('SparqlJsonParser', () => {
     it('should convert an empty SPARQL JSON response', async () => {
       return expect(await arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
 {
+  "head": { "vars": [] },
   "results": {
     "bindings": []
   }
@@ -93,9 +95,23 @@ describe('SparqlJsonParser', () => {
 `)))).toEqual([]);
     });
 
-    it('should convert an empty SPARQL JSON response', async () => {
+    it('should convert an empty SPARQL JSON response and emit the variables', async () => {
+      const stream = parser.parseJsonResultsStream(streamifyString(`
+{
+  "head": { "vars": [] },
+  "results": {
+    "bindings": []
+  }
+}
+`));
+      return expect(new Promise((resolve) => stream.on('variables', resolve))).resolves.toEqualRdfTermArray([
+      ]);
+    });
+
+    it('should convert a SPARQL JSON response', async () => {
       return expect(await arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
 {
+  "head": { "vars": [ "book" ] },
   "results": {
     "bindings": [
       { "book": { "type": "uri", "value": "http://example.org/book/book1" } },
@@ -113,6 +129,26 @@ describe('SparqlJsonParser', () => {
         { '?book': namedNode('http://example.org/book/book4') },
         { '?book': namedNode('http://example.org/book/book5') },
 ]);
+    });
+
+    it('should convert a SPARQL JSON response and emit the variables', async () => {
+      const stream = parser.parseJsonResultsStream(streamifyString(`
+{
+  "head": { "vars": [ "book" ] },
+  "results": {
+    "bindings": [
+      { "book": { "type": "uri", "value": "http://example.org/book/book1" } },
+      { "book": { "type": "uri", "value": "http://example.org/book/book2" } },
+      { "book": { "type": "uri", "value": "http://example.org/book/book3" } },
+      { "book": { "type": "uri", "value": "http://example.org/book/book4" } },
+      { "book": { "type": "uri", "value": "http://example.org/book/book5" } }
+    ]
+  }
+}
+`));
+      return expect(new Promise((resolve) => stream.on('variables', resolve))).resolves.toEqualRdfTermArray([
+        variable('book'),
+      ]);
     });
 
     it('should emit an error on an erroring stream', async () => {

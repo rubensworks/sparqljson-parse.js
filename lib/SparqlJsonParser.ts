@@ -28,11 +28,20 @@ export class SparqlJsonParser {
 
   /**
    * Convert a SPARQL JSON bindings response stream to a stream of bindings objects.
+   *
+   * The bindings stream will emit a 'variables' event that will contain
+   * the array of variables (as RDF.Variable[]), as defined in the response head.
+   *
    * @param {NodeJS.ReadableStream} sparqlResponseStream A SPARQL JSON response stream.
    * @return {NodeJS.ReadableStream} A stream of bindings.
    */
   public parseJsonResultsStream(sparqlResponseStream: NodeJS.ReadableStream): NodeJS.ReadableStream {
     sparqlResponseStream.on('error', (error) => resultStream.emit('error', error));
+    const variables: RDF.Variable[] = [];
+    sparqlResponseStream
+      .pipe(require('JSONStream').parse('head.vars.*'))
+      .on('data', (variable: string) => variables.push(this.dataFactory.variable(variable)))
+      .on('end',  () => resultStream.emit('variables', variables));
     const resultStream = sparqlResponseStream
       .pipe(require('JSONStream').parse('results.bindings.*'))
       .pipe(new SparqlJsonBindingsTransformer(this));

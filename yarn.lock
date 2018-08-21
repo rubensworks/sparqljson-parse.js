@@ -1697,6 +1697,12 @@ jest-mock@^23.2.0:
   version "23.2.0"
   resolved "https://registry.yarnpkg.com/jest-mock/-/jest-mock-23.2.0.tgz#ad1c60f29e8719d47c26e1138098b6d18b261134"
 
+jest-rdf@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/jest-rdf/-/jest-rdf-1.1.0.tgz#6ebfe58322b64374b1a68b73b71258d0b1ee34ae"
+  dependencies:
+    rdf-string "^1.1.1"
+
 jest-regex-util@^23.3.0:
   version "23.3.0"
   resolved "https://registry.yarnpkg.com/jest-regex-util/-/jest-regex-util-23.3.0.tgz#5f86729547c2785c4002ceaa8f849fe8ca471bc5"
@@ -2533,6 +2539,12 @@ rc@^1.1.7:
     ini "~1.3.0"
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
+
+rdf-string@^1.1.1:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/rdf-string/-/rdf-string-1.2.0.tgz#25cd45ab168c8ed1cde62eb64ac3c2291fc551c0"
+  dependencies:
+    "@rdfjs/data-model" "^1.1.0"
 
 read-pkg-up@^1.0.1:
   version "1.0.1"
