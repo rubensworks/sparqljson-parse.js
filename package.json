@@ -18,9 +18,6 @@
   },
   "homepage": "https://github.com/rubensworks/sparqljson-parse.js#readme",
   "license": "MIT",
-  "bin": {
-    "sparqlresults-to-graphqlresults": "./bin/sparqlresults-to-graphqlresults.js"
-  },
   "files": [
     "lib/**/*.d.ts",
     "lib/**/*.js",
