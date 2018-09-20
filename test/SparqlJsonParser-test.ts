@@ -4,6 +4,7 @@ import {PassThrough} from "stream";
 import {SparqlJsonParser} from "../lib/SparqlJsonParser";
 const arrayifyStream = require('arrayify-stream');
 const streamifyString = require('streamify-string');
+const DataFactory = {...require('@rdfjs/data-model')};
 
 describe('SparqlJsonParser', () => {
 
@@ -15,7 +16,7 @@ describe('SparqlJsonParser', () => {
     });
 
     it('should have the default data factory', () => {
-      return expect((<any> optionlessInstance).dataFactory).toBe(require('@rdfjs/data-model'));
+      return expect((<any> optionlessInstance).dataFactory).toMatchObject(DataFactory);
     });
 
     it('should not prefix variables with a question mark', () => {
@@ -31,7 +32,7 @@ describe('SparqlJsonParser', () => {
     });
 
     it('should have the default data factory', () => {
-      return expect((<any> optionsEmptyInstance).dataFactory).toBe(require('@rdfjs/data-model'));
+      return expect((<any> optionsEmptyInstance).dataFactory).toMatchObject(DataFactory);
     });
 
     it('should not prefix variables with a question mark', () => {
