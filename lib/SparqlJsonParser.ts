@@ -71,6 +71,10 @@ export class SparqlJsonParser {
           value = this.dataFactory.literal(rawValue.value);
         }
         break;
+      case 'typed-literal':
+        // Virtuoso uses this non-spec-compliant way of defining typed literals
+        value = this.dataFactory.literal(rawValue.value, this.dataFactory.namedNode(rawValue.datatype));
+        break;
       default:
         value = this.dataFactory.namedNode(rawValue.value);
         break;

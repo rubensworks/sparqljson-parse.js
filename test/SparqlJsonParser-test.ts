@@ -196,6 +196,12 @@ describe('SparqlJsonParser', () => {
       })).toEqual({ '?book': literal('abc', namedNode('http://ex')) });
     });
 
+    it('should convert bindings with Virtuoso\'s datatyped literals', () => {
+      return expect(parser.parseJsonBindings({
+        book: { type: 'typed-literal', value: 'abc', datatype: 'http://ex' },
+      })).toEqual({ '?book': literal('abc', namedNode('http://ex')) });
+    });
+
     it('should convert mixed bindings', () => {
       return expect(parser.parseJsonBindings({
         book1: { type: 'uri', value: 'http://example.org/book/book6' },
