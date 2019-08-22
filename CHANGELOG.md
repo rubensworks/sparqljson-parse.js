@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v1.5.1"></a>
+## [v1.5.1](https://github.com/rubensworks/sparqljson-parse.js/compare/v1.5.0...v1.5.1) - 2019-08-22
+
+### Fixed
+* [Add required typings as dependencies, Closes #11](https://github.com/rubensworks/sparqljson-parse.js/commit/d5d2b1e9c15b6a8269d3595439760058c4433c9a)
+
 <a name="v1.5.0"></a>
 ## [v1.5.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v1.4.0...v1.5.0) - 2018-11-08
 
