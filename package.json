@@ -30,7 +30,7 @@
     "test"
   ],
   "devDependencies": {
-    "@types/jest": "^24.0.1",
+    "@types/jest": "^25.1.0",
     "@types/minimist": "^1.2.0",
     "arrayify-stream": "^1.0.0",
     "coveralls": "^3.0.0",
