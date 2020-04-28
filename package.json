@@ -78,7 +78,7 @@
   "dependencies": {
     "@rdfjs/data-model": "^1.1.1",
     "@types/node": "^13.1.0",
-    "@types/rdf-js": "^2.0.2",
+    "@types/rdf-js": "^3.0.0",
     "JSONStream": "^1.3.3"
   }
 }
