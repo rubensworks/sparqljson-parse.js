@@ -1,4 +1,4 @@
-import * as DefaultDataFactory from "@rdfjs/data-model";
+import {DataFactory} from "rdf-data-factory";
 import * as RDF from "rdf-js";
 import {SparqlJsonBindingsTransformer} from "./SparqlJsonBindingsTransformer";
 
@@ -13,7 +13,7 @@ export class SparqlJsonParser {
 
   constructor(settings?: ISettings) {
     settings = settings || {};
-    this.dataFactory = settings.dataFactory || DefaultDataFactory;
+    this.dataFactory = settings.dataFactory || new DataFactory();
     this.prefixVariableQuestionMark = !!settings.prefixVariableQuestionMark;
   }
 

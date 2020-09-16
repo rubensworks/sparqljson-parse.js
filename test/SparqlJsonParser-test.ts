@@ -1,10 +1,10 @@
-import {blankNode, literal, namedNode, variable} from "@rdfjs/data-model";
+import {DataFactory} from "rdf-data-factory";
 import "jest-rdf";
 import {PassThrough} from "stream";
 import {SparqlJsonParser} from "../lib/SparqlJsonParser";
 const arrayifyStream = require('arrayify-stream');
 const streamifyString = require('streamify-string');
-const DataFactory = require('@rdfjs/data-model');
+const DF = new DataFactory();
 
 describe('SparqlJsonParser', () => {
 
@@ -16,7 +16,7 @@ describe('SparqlJsonParser', () => {
     });
 
     it('should have the default data factory', () => {
-      return expect((<any> optionlessInstance).dataFactory).toBe(DataFactory);
+      return expect((<any> optionlessInstance).dataFactory).toBeInstanceOf(DataFactory);
     });
 
     it('should not prefix variables with a question mark', () => {
@@ -32,7 +32,7 @@ describe('SparqlJsonParser', () => {
     });
 
     it('should have the default data factory', () => {
-      return expect((<any> optionsEmptyInstance).dataFactory).toBe(DataFactory);
+      return expect((<any> optionsEmptyInstance).dataFactory).toBeInstanceOf(DataFactory);
     });
 
     it('should not prefix variables with a question mark', () => {
@@ -75,11 +75,11 @@ describe('SparqlJsonParser', () => {
         { book: { type: 'uri', value: 'http://example.org/book/book4' } },
         { book: { type: 'uri', value: 'http://example.org/book/book5' } },
       ] } })).toEqual([
-        { '?book': namedNode('http://example.org/book/book1') },
-        { '?book': namedNode('http://example.org/book/book2') },
-        { '?book': namedNode('http://example.org/book/book3') },
-        { '?book': namedNode('http://example.org/book/book4') },
-        { '?book': namedNode('http://example.org/book/book5') },
+        { '?book': DF.namedNode('http://example.org/book/book1') },
+        { '?book': DF.namedNode('http://example.org/book/book2') },
+        { '?book': DF.namedNode('http://example.org/book/book3') },
+        { '?book': DF.namedNode('http://example.org/book/book4') },
+        { '?book': DF.namedNode('http://example.org/book/book5') },
       ]);
     });
   });
@@ -124,11 +124,11 @@ describe('SparqlJsonParser', () => {
   }
 }
 `)))).toEqual([
-        { '?book': namedNode('http://example.org/book/book1') },
-        { '?book': namedNode('http://example.org/book/book2') },
-        { '?book': namedNode('http://example.org/book/book3') },
-        { '?book': namedNode('http://example.org/book/book4') },
-        { '?book': namedNode('http://example.org/book/book5') },
+        { '?book': DF.namedNode('http://example.org/book/book1') },
+        { '?book': DF.namedNode('http://example.org/book/book2') },
+        { '?book': DF.namedNode('http://example.org/book/book3') },
+        { '?book': DF.namedNode('http://example.org/book/book4') },
+        { '?book': DF.namedNode('http://example.org/book/book5') },
 ]);
     });
 
@@ -148,7 +148,7 @@ describe('SparqlJsonParser', () => {
 }
 `));
       return expect(new Promise((resolve) => stream.on('variables', resolve))).resolves.toEqualRdfTermArray([
-        variable('book'),
+        DF.variable('book'),
       ]);
     });
 
@@ -163,43 +163,43 @@ describe('SparqlJsonParser', () => {
     it('should convert bindings with named nodes', () => {
       return expect(parser.parseJsonBindings({
         book: { type: 'uri', value: 'http://example.org/book/book6' },
-      })).toEqual({ '?book': namedNode('http://example.org/book/book6') });
+      })).toEqual({ '?book': DF.namedNode('http://example.org/book/book6') });
     });
 
     it('should convert bindings with named nodes without variable prefixing', () => {
       return expect(new SparqlJsonParser().parseJsonBindings({
         book: { type: 'uri', value: 'http://example.org/book/book6' },
-      })).toEqual({ book: namedNode('http://example.org/book/book6') });
+      })).toEqual({ book: DF.namedNode('http://example.org/book/book6') });
     });
 
     it('should convert bindings with blank nodes', () => {
       return expect(parser.parseJsonBindings({
         book: { type: 'bnode', value: 'abc' },
-      })).toEqual({ '?book': blankNode('abc') });
+      })).toEqual({ '?book': DF.blankNode('abc') });
     });
 
     it('should convert bindings with literals', () => {
       return expect(parser.parseJsonBindings({
         book: { type: 'literal', value: 'abc' },
-      })).toEqual({ '?book': literal('abc') });
+      })).toEqual({ '?book': DF.literal('abc') });
     });
 
     it('should convert bindings with languaged literals', () => {
       return expect(parser.parseJsonBindings({
         book: { 'type': 'literal', 'value': 'abc', 'xml:lang': 'en-us' },
-      })).toEqual({ '?book': literal('abc', 'en-us') });
+      })).toEqual({ '?book': DF.literal('abc', 'en-us') });
     });
 
     it('should convert bindings with datatyped literals', () => {
       return expect(parser.parseJsonBindings({
         book: { type: 'literal', value: 'abc', datatype: 'http://ex' },
-      })).toEqual({ '?book': literal('abc', namedNode('http://ex')) });
+      })).toEqual({ '?book': DF.literal('abc', DF.namedNode('http://ex')) });
     });
 
     it('should convert bindings with Virtuoso\'s datatyped literals', () => {
       return expect(parser.parseJsonBindings({
         book: { type: 'typed-literal', value: 'abc', datatype: 'http://ex' },
-      })).toEqual({ '?book': literal('abc', namedNode('http://ex')) });
+      })).toEqual({ '?book': DF.literal('abc', DF.namedNode('http://ex')) });
     });
 
     it('should convert mixed bindings', () => {
@@ -210,11 +210,11 @@ describe('SparqlJsonParser', () => {
         book4: { 'type': 'literal', 'value': 'abc', 'xml:lang': 'en-us' },
         book5: { type: 'literal', value: 'abc', datatype: 'http://ex' },
       })).toEqual({
-        '?book1': namedNode('http://example.org/book/book6'),
-        '?book2': blankNode('abc'),
-        '?book3': literal('abc'),
-        '?book4': literal('abc', 'en-us'),
-        '?book5': literal('abc', namedNode('http://ex')),
+        '?book1': DF.namedNode('http://example.org/book/book6'),
+        '?book2': DF.blankNode('abc'),
+        '?book3': DF.literal('abc'),
+        '?book4': DF.literal('abc', 'en-us'),
+        '?book5': DF.literal('abc', DF.namedNode('http://ex')),
       });
     });
   });
