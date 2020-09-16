@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v1.6.0"></a>
+## [v1.6.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v1.5.2...v1.6.0) - 2020-09-16
+
+### Changed
+* [Migrate to rdf-data-factory and @types/rdf-js 4.x](https://github.com/rubensworks/sparqljson-parse.js/commit/98bd2eb22809945e1b7b244e70cac2bf5adbb952)
+
 <a name="v1.5.2"></a>
 ## [v1.5.2](https://github.com/rubensworks/sparqljson-parse.js/compare/v1.5.1...v1.5.2) - 2020-04-28
 

@@ -1,6 +1,6 @@
 {
   "name": "sparqljson-parse",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "Parses SPARQL JSON query results",
   "keywords": [
     "sparql",
@@ -50,7 +50,9 @@
         "tsConfig": "test/tsconfig.json"
       }
     },
-    "setupFilesAfterEnv": ["jest-rdf"],
+    "setupFilesAfterEnv": [
+      "jest-rdf"
+    ],
     "transform": {
       "^.+\\.ts$": "ts-jest"
     },
