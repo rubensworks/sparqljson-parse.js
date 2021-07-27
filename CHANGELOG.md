@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v1.6.1"></a>
+## [v1.6.1](https://github.com/rubensworks/sparqljson-parse.js/compare/v1.6.0...v1.6.1) - 2021-07-27
+
+### Fixed
+* [Fix not all JSON parse errors being caught](https://github.com/rubensworks/sparqljson-parse.js/commit/3389a2949f0d59a959fb43d4c7b8c248a891b30c)
+
 <a name="v1.6.0"></a>
 ## [v1.6.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v1.5.2...v1.6.0) - 2020-09-16
 
