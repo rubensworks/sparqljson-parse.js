@@ -36,14 +36,15 @@ export class SparqlJsonParser {
    * @return {NodeJS.ReadableStream} A stream of bindings.
    */
   public parseJsonResultsStream(sparqlResponseStream: NodeJS.ReadableStream): NodeJS.ReadableStream {
-    sparqlResponseStream.on('error', (error) => resultStream.emit('error', error));
+    const errorListener = (error: Error) => resultStream.emit('error', error);
+    sparqlResponseStream.on('error', errorListener);
     const variables: RDF.Variable[] = [];
     sparqlResponseStream
-      .pipe(require('JSONStream').parse('head.vars.*'))
+      .pipe(require('JSONStream').parse('head.vars.*').on('error', errorListener))
       .on('data', (variable: string) => variables.push(this.dataFactory.variable(variable)))
       .on('end',  () => resultStream.emit('variables', variables));
     const resultStream = sparqlResponseStream
-      .pipe(require('JSONStream').parse('results.bindings.*'))
+      .pipe(require('JSONStream').parse('results.bindings.*').on('error', errorListener))
       .pipe(new SparqlJsonBindingsTransformer(this));
     return resultStream;
   }
