@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v1.7.0"></a>
+## [v1.7.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v1.6.1...v1.7.0) - 2021-08-11
+
+### Changed
+* [Migrate to @rdfjs/types](https://github.com/rubensworks/sparqljson-parse.js/commit/160aee426f812ff86194f47bb67ab1d93acf5a5a)
+
 <a name="v1.6.1"></a>
 ## [v1.6.1](https://github.com/rubensworks/sparqljson-parse.js/compare/v1.6.0...v1.6.1) - 2021-07-27
 
