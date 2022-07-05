@@ -1,5 +1,6 @@
-import {Transform, TransformCallback} from "stream";
 import {SparqlJsonParser} from "./SparqlJsonParser";
+
+import { Transform } from "readable-stream";
 
 /**
  * Transforms a stream of SPARQL JSON bindings object to parsed bindings.
@@ -13,7 +14,7 @@ export class SparqlJsonBindingsTransformer extends Transform {
     this.parser = parser;
   }
 
-  public _transform(chunk: any, encoding: string, callback: TransformCallback): void {
+  public _transform(chunk: any, encoding: string, callback: (error?: Error | null, data?: any) => void): void {
     callback(null, this.parser.parseJsonBindings(chunk));
   }
 
