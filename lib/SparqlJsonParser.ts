@@ -1,6 +1,9 @@
 import {DataFactory} from "rdf-data-factory";
 import * as RDF from "@rdfjs/types";
-import {SparqlJsonBindingsTransformer} from "./SparqlJsonBindingsTransformer";
+import {Transform} from "readable-stream";
+
+// tslint:disable-next-line:no-var-requires
+const JsonParser = require('jsonparse');
 
 /**
  * Parser for the SPARQL 1.1 Query Results JSON format.
@@ -38,14 +41,25 @@ export class SparqlJsonParser {
   public parseJsonResultsStream(sparqlResponseStream: NodeJS.ReadableStream): NodeJS.ReadableStream {
     const errorListener = (error: Error) => resultStream.emit('error', error);
     sparqlResponseStream.on('error', errorListener);
-    const variables: RDF.Variable[] = [];
-    sparqlResponseStream
-      .pipe(require('JSONStream').parse('head.vars.*').on('error', errorListener))
-      .on('data', (variable: string) => variables.push(this.dataFactory.variable(variable)))
-      .on('end',  () => resultStream.emit('variables', variables));
+
+    const jsonParser = new JsonParser();
+    jsonParser.onError = errorListener;
+    jsonParser.onValue = (value: any) => {
+      if(jsonParser.key === "vars" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
+        resultStream.emit('variables', value.map((v: string) => this.dataFactory.variable(v)))
+      } else if(typeof jsonParser.key === 'number' && jsonParser.stack.length === 3 && jsonParser.stack[1].key === 'results' && jsonParser.stack[2].key === 'bindings') {
+        resultStream.push(this.parseJsonBindings(value))
+      }
+    }
+
     const resultStream = sparqlResponseStream
-      .pipe(require('JSONStream').parse('results.bindings.*').on('error', errorListener))
-      .pipe(new SparqlJsonBindingsTransformer(this));
+      .pipe(new Transform({
+        objectMode: true,
+        transform(chunk: any, encoding: string, callback: (error?: Error | null, data?: any) => void) {
+          jsonParser.write(chunk);
+          callback();
+        }
+      }));
     return resultStream;
   }
 
@@ -102,14 +116,21 @@ export class SparqlJsonParser {
    * Convert a SPARQL JSON boolean response stream to a promise resolving to a boolean.
    * This will reject if the given reponse was not a valid boolean response.
    * @param {NodeJS.ReadableStream} sparqlResponseStream A SPARQL JSON response stream.
-   * @return {NodeJS.ReadableStream} A stream of bindings.
+   * @return {Promise<boolean>} The response boolean.
    */
   public parseJsonBooleanStream(sparqlResponseStream: NodeJS.ReadableStream): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      sparqlResponseStream.on('error', reject);
-      sparqlResponseStream.pipe(require('JSONStream').parse('boolean'))
-        .on('data', resolve)
-        .on('end', () => reject(new Error('No valid ASK response was found.')));
+      const parser = new JsonParser();
+      parser.onError = reject;
+      parser.onValue = (value: any) => {
+        if(parser.key === "boolean" && typeof value === 'boolean' && parser.stack.length === 1) {
+          resolve(value);
+        }
+      }
+      sparqlResponseStream
+          .on('error', reject)
+          .on('data', d => parser.write(d))
+          .on('end', () => reject(new Error('No valid ASK response was found.')));
     });
   }
 
@@ -135,3 +156,4 @@ export interface ISettings {
 export interface IBindings {
   [key: string]: RDF.Term;
 }
+

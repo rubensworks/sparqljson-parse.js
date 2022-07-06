@@ -112,43 +112,39 @@ describe('SparqlJsonParser', () => {
     it('should convert a SPARQL JSON response', async () => {
       return expect(await arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
 {
-  "head": { "vars": [ "book" ] },
+  "head": { "vars": [ "book", "library" ] },
   "results": {
     "bindings": [
-      { "book": { "type": "uri", "value": "http://example.org/book/book1" } },
-      { "book": { "type": "uri", "value": "http://example.org/book/book2" } },
-      { "book": { "type": "uri", "value": "http://example.org/book/book3" } },
-      { "book": { "type": "uri", "value": "http://example.org/book/book4" } },
-      { "book": { "type": "uri", "value": "http://example.org/book/book5" } }
+      { "book": { "type": "uri", "value": "http://example.org/book/book1" }, "library": { "type": "uri", "value": "http://example.org/book/library1" } },
+      { "book": { "type": "uri", "value": "http://example.org/book/book2" }, "library": { "type": "uri", "value": "http://example.org/book/library2" } },
+      { "book": { "type": "uri", "value": "http://example.org/book/book3" }, "library": { "type": "uri", "value": "http://example.org/book/library3" } },
+      { "book": { "type": "uri", "value": "http://example.org/book/book4" }, "library": { "type": "uri", "value": "http://example.org/book/library4" } },
+      { "book": { "type": "uri", "value": "http://example.org/book/book5" }, "library": { "type": "uri", "value": "http://example.org/book/library5" } }
     ]
   }
 }
 `)))).toEqual([
-        { '?book': DF.namedNode('http://example.org/book/book1') },
-        { '?book': DF.namedNode('http://example.org/book/book2') },
-        { '?book': DF.namedNode('http://example.org/book/book3') },
-        { '?book': DF.namedNode('http://example.org/book/book4') },
-        { '?book': DF.namedNode('http://example.org/book/book5') },
+        { '?book': DF.namedNode('http://example.org/book/book1'), '?library': DF.namedNode('http://example.org/book/library1') },
+        { '?book': DF.namedNode('http://example.org/book/book2'), '?library': DF.namedNode('http://example.org/book/library2') },
+        { '?book': DF.namedNode('http://example.org/book/book3'), '?library': DF.namedNode('http://example.org/book/library3') },
+        { '?book': DF.namedNode('http://example.org/book/book4'), '?library': DF.namedNode('http://example.org/book/library4') },
+        { '?book': DF.namedNode('http://example.org/book/book5'), '?library': DF.namedNode('http://example.org/book/library5') },
 ]);
     });
 
     it('should convert a SPARQL JSON response and emit the variables', async () => {
       const stream = parser.parseJsonResultsStream(streamifyString(`
 {
-  "head": { "vars": [ "book" ] },
+  "head": { "vars": [ "book", "library" ] },
   "results": {
     "bindings": [
-      { "book": { "type": "uri", "value": "http://example.org/book/book1" } },
-      { "book": { "type": "uri", "value": "http://example.org/book/book2" } },
-      { "book": { "type": "uri", "value": "http://example.org/book/book3" } },
-      { "book": { "type": "uri", "value": "http://example.org/book/book4" } },
-      { "book": { "type": "uri", "value": "http://example.org/book/book5" } }
+      { "book": { "type": "uri", "value": "http://example.org/book/book1" }, "library": { "type": "uri", "value": "http://example.org/book/library1" } }
     ]
   }
 }
 `));
       return expect(new Promise((resolve) => stream.on('variables', resolve))).resolves.toEqualRdfTermArray([
-        DF.variable('book'),
+        DF.variable('book'), DF.variable('library')
       ]);
     });
 
