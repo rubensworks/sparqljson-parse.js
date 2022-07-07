@@ -2,7 +2,7 @@ import {DataFactory} from "rdf-data-factory";
 import "jest-rdf";
 import {PassThrough} from "stream";
 import {SparqlJsonParser} from "../lib/SparqlJsonParser";
-const arrayifyStream = require('arrayify-stream');
+import arrayifyStream from 'arrayify-stream';
 const streamifyString = require('streamify-string');
 const DF = new DataFactory();
 
