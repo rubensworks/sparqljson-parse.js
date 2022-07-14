@@ -1,6 +1,17 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v2.0.0"></a>
+## [v2.0.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v1.7.0...v2.0.0) - 2022-07-14
+
+This release has been marked as a major change due to the transition from Node's internal `stream` API to `readable-stream`.
+Most users should experience not breakages with this change.
+
+### Changed
+* [Remove JSONStream dependency](https://github.com/rubensworks/sparqljson-parse.js/commit/18d98ff26dfa553bb8b8e33c3d5472384c4fb269)
+* [Depend on readable-stream to avoid direct dependency on NodeJS](https://github.com/rubensworks/sparqljson-parse.js/commit/e4fc43ca7dda310e81077b24926c4a7e82355707)
+* [Mark sideEffects: false in package.json](https://github.com/rubensworks/sparqljson-parse.js/commit/959ff9c381963347df5a02ee697623f1ae29e061)
+
 <a name="v1.7.0"></a>
 ## [v1.7.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v1.6.1...v1.7.0) - 2021-08-11
 
