@@ -44,15 +44,27 @@ export class SparqlJsonParser {
 
     const jsonParser = new JsonParser();
     jsonParser.onError = errorListener;
+    let variablesFound = false;
+    let resultsFound = false;
     jsonParser.onValue = (value: any) => {
       if(jsonParser.key === "vars" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
         resultStream.emit('variables', value.map((v: string) => this.dataFactory.variable(v)))
+        variablesFound = true;
+      } else if(jsonParser.key === "results" && jsonParser.stack.length === 1) {
+        resultsFound = true;
       } else if(typeof jsonParser.key === 'number' && jsonParser.stack.length === 3 && jsonParser.stack[1].key === 'results' && jsonParser.stack[2].key === 'bindings') {
         resultStream.push(this.parseJsonBindings(value))
       }
     }
 
     const resultStream = sparqlResponseStream
+      .on("end", _ => {
+        if (!resultsFound) {
+          resultStream.emit("error", new Error("No valid SPARQL query results was found."))
+        } else if (!variablesFound) {
+          resultStream.emit('variables', []);
+        }
+      })
       .pipe(new Transform({
         objectMode: true,
         transform(chunk: any, encoding: string, callback: (error?: Error | null, data?: any) => void) {

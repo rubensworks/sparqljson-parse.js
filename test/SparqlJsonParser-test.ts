@@ -109,6 +109,18 @@ describe('SparqlJsonParser', () => {
       ]);
     });
 
+    it('should convert a more empty SPARQL JSON response and emit the variables', async () => {
+      const stream = parser.parseJsonResultsStream(streamifyString(`
+{
+  "results": {
+    "bindings": []
+  }
+}
+`));
+      return expect(new Promise((resolve) => stream.on('variables', resolve))).resolves.toEqualRdfTermArray([
+      ]);
+    });
+
     it('should convert a SPARQL JSON response', async () => {
       return expect(await arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
 {
@@ -146,6 +158,18 @@ describe('SparqlJsonParser', () => {
       return expect(new Promise((resolve) => stream.on('variables', resolve))).resolves.toEqualRdfTermArray([
         DF.variable('book'), DF.variable('library')
       ]);
+    });
+
+    it('should reject a boolean payload', async () => {
+      return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString(`{"head": {}, "boolean": true}`)))).rejects.toBeTruthy();
+    });
+
+    it('should reject an empty payload', async () => {
+      return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString('{}')))).rejects.toBeTruthy();
+    });
+
+    it('should reject on an invalid JSON', async () => {
+      return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString('{')))).rejects.toBeTruthy();
     });
 
     it('should emit an error on an erroring stream', async () => {
@@ -240,6 +264,10 @@ describe('SparqlJsonParser', () => {
 
     it('should convert a false SPARQL JSON boolean response', async () => {
       return expect(await parser.parseJsonBooleanStream(streamifyString(`{ "boolean": false }`))).toEqual(false);
+    });
+
+    it('should reject on an invalid JSON', async () => {
+      return expect(() => parser.parseJsonBooleanStream(streamifyString(`{`))).rejects.toBeTruthy();
     });
 
     it('should reject on an erroring stream', async () => {
