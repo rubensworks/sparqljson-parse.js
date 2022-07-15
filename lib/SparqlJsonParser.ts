@@ -60,7 +60,7 @@ export class SparqlJsonParser {
     const resultStream = sparqlResponseStream
       .on("end", _ => {
         if (!resultsFound) {
-          resultStream.emit("error", new Error("No valid SPARQL query results was found."))
+          resultStream.emit("error", new Error("No valid SPARQL query results were found."))
         } else if (!variablesFound) {
           resultStream.emit('variables', []);
         }
