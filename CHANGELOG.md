@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v2.0.1"></a>
+## [v2.0.1](https://github.com/rubensworks/sparqljson-parse.js/compare/v2.0.0...v2.0.1) - 2022-07-15
+
+### Fixed
+* [Ensure variables or error event is emitted](https://github.com/rubensworks/sparqljson-parse.js/commit/40a86691c9096a75ef3218a928e73bc0ea68cefb)
+
 <a name="v2.0.0"></a>
 ## [v2.0.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v1.7.0...v2.0.0) - 2022-07-14
 
