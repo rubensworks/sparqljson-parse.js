@@ -117,6 +117,31 @@ sparqlJsonParser.parseJsonResultsStream(myStream)
 `sparqlJsonParser.parseJsonBooleanStream` also takes a stream as input,
 but it returns a promise that resolves to a boolean.
 
+### Advanced: metadata entries
+
+This library can recognise metadata on the result stream in the following form:
+
+```json
+{
+  "head": { "vars": [ "book", "library" ] },
+  "results": {
+    "bindings": [
+      { "book": { "type": "uri", "value": "http://example.org/book/book1" }, "library": { "type": "uri", "value": "http://example.org/book/library1" } }
+    ]
+  },
+  "metadata": { "httpRequests": 0 }
+}
+```
+
+This metadata can be captured by listening to the `"metadata"` event:
+```
+sparqlJsonParser.parseJsonResultsStream(myStream)
+    .on('metadata', (metadata: any) => console.log(metadata))
+    .on('data', (bindings: IBindings) => console.log(bindings));
+```
+
+Note that this is part of the SPARQL/JSON specification.
+
 ## License
 This software is written by [Ruben Taelman](http://rubensworks.net/).
 

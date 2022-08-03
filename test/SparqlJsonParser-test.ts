@@ -177,6 +177,24 @@ describe('SparqlJsonParser', () => {
       errorStream._read = () => errorStream.emit('error', new Error('Some stream error'));
       return expect(arrayifyStream(parser.parseJsonResultsStream(errorStream))).rejects.toBeTruthy();
     });
+
+    it('should handle meadata in a SPARQL JSON response', async () => {
+      const stream = parser.parseJsonResultsStream(streamifyString(`
+{
+  "head": { "vars": [ "book", "library" ] },
+  "results": {
+    "bindings": [
+      { "book": { "type": "uri", "value": "http://example.org/book/book1" }, "library": { "type": "uri", "value": "http://example.org/book/library1" } }
+    ]
+  },
+  "metadata": { "httpRequests": 0 }
+}
+`));
+      return expect(await new Promise((resolve, reject) => {
+        stream.on('metadata', resolve);
+        stream.on('end', reject);
+      })).toEqual({ "httpRequests": 0 });
+    });
   });
 
   describe('#parseJsonBindings', () => {
