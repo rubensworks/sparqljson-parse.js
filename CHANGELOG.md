@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v2.1.0"></a>
+## [v2.1.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v2.0.1...v2.1.0) - 2022-08-03
+
+### Added
+* [Allow parsing of metadata in the JSON result stream](https://github.com/rubensworks/sparqljson-parse.js/commit/0ab561d95a5b0f576ad3ff431076e78d366f658d)
+
 <a name="v2.0.1"></a>
 ## [v2.0.1](https://github.com/rubensworks/sparqljson-parse.js/compare/v2.0.0...v2.0.1) - 2022-07-15
 
