@@ -96,6 +96,17 @@ describe('SparqlJsonParser', () => {
 `)))).toEqual([]);
     });
 
+    it('should convert a slightly invalid empty SPARQL JSON response (common PHP error)', async () => {
+      return expect(await arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
+{
+  "head": { "vars": [] },
+  "results": {
+    "bindings": {}
+  }
+}
+`)))).toEqual([]);
+    });
+
     it('should convert an empty SPARQL JSON response and emit the variables', async () => {
       const stream = parser.parseJsonResultsStream(streamifyString(`
 {
@@ -170,6 +181,14 @@ describe('SparqlJsonParser', () => {
 
     it('should reject on an invalid JSON', async () => {
       return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString('{')))).rejects.toBeTruthy();
+    });
+
+    it('should reject on an invalid variables', async () => {
+      return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString('{"head": {"vars": null}, "results": {"bindings": []}}')))).rejects.toBeTruthy();
+    });
+
+    it('should reject on an invalid variables 2', async () => {
+      return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString('{"head": {"vars": [[]]}, "results": {"bindings": []}}')))).rejects.toBeTruthy();
     });
 
     it('should emit an error on an erroring stream', async () => {
