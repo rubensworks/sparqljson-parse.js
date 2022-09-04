@@ -5,9 +5,6 @@ import {Transform} from "readable-stream";
 // tslint:disable-next-line:no-var-requires
 const JsonParser = require('jsonparse');
 
-// Declare function type to avoid errors about optional variable
-type DataFactoryVariableFunction = (value: string) => RDF.Variable;
-
 /**
  * Parser for the SPARQL 1.1 Query Results JSON format.
  * @see https://www.w3.org/TR/sparql11-results-json/
@@ -51,8 +48,7 @@ export class SparqlJsonParser {
     let resultsFound = false;
     jsonParser.onValue = (value: any) => {
       if(jsonParser.key === "vars" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
-        const variableFunction: DataFactoryVariableFunction = this.dataFactory.variable as DataFactoryVariableFunction;
-        resultStream.emit('variables', value.map((v: string) => variableFunction(v)));
+        resultStream.emit('variables', value.map((v: string) => this.dataFactory.variable(v)));
         variablesFound = true;
       } else if(jsonParser.key === "results" && jsonParser.stack.length === 1) {
         resultsFound = true;
