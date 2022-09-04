@@ -5,6 +5,9 @@ import {Transform} from "readable-stream";
 // tslint:disable-next-line:no-var-requires
 const JsonParser = require('jsonparse');
 
+// Declare function type to avoid errors about optional variable
+type DataFactoryVariableFunction = (value: string) => RDF.Variable;
+
 /**
  * Parser for the SPARQL 1.1 Query Results JSON format.
  * @see https://www.w3.org/TR/sparql11-results-json/
@@ -48,7 +51,8 @@ export class SparqlJsonParser {
     let resultsFound = false;
     jsonParser.onValue = (value: any) => {
       if(jsonParser.key === "vars" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
-        resultStream.emit('variables', value.map((v: string) => this.dataFactory.variable(v)));
+        const variableFunction: DataFactoryVariableFunction = this.dataFactory.variable as DataFactoryVariableFunction;
+        resultStream.emit('variables', value.map((v: string) => variableFunction(v)));
         variablesFound = true;
       } else if(jsonParser.key === "results" && jsonParser.stack.length === 1) {
         resultsFound = true;
@@ -60,20 +64,21 @@ export class SparqlJsonParser {
     }
 
     const resultStream = sparqlResponseStream
-      .on("end", _ => {
-        if (!resultsFound) {
-          resultStream.emit("error", new Error("No valid SPARQL query results were found."))
-        } else if (!variablesFound) {
-          resultStream.emit('variables', []);
-        }
-      })
       .pipe(new Transform({
         objectMode: true,
         transform(chunk: any, encoding: string, callback: (error?: Error | null, data?: any) => void) {
           jsonParser.write(chunk);
           callback();
         }
-      }));
+      }))
+      .on("end", _ => {
+        if (!resultsFound) {
+          resultStream.emit("error", new Error("No valid SPARQL query results were found (edited)!"))
+        } else if (!variablesFound) {
+          resultStream.emit('variables', []);
+        }
+      });
+      
     return resultStream;
   }
 
@@ -86,7 +91,7 @@ export class SparqlJsonParser {
     const bindings: IBindings = {};
     for (const key in rawBindings) {
       const rawValue: any = rawBindings[key];
-      let value: RDF.Term = null;
+      let value: RDF.Term;
       switch (rawValue.type) {
       case 'bnode':
         value = this.dataFactory.blankNode(rawValue.value);
