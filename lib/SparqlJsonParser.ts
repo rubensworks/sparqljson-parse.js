@@ -69,12 +69,12 @@ export class SparqlJsonParser {
       }))
       .on("end", _ => {
         if (!resultsFound) {
-          resultStream.emit("error", new Error("No valid SPARQL query results were found (edited)!"))
+          resultStream.emit("error", new Error("No valid SPARQL query results were found."))
         } else if (!variablesFound) {
           resultStream.emit('variables', []);
         }
       });
-      
+
     return resultStream;
   }
 
