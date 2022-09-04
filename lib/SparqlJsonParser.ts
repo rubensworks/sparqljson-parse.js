@@ -87,7 +87,7 @@ export class SparqlJsonParser {
     const bindings: IBindings = {};
     for (const key in rawBindings) {
       const rawValue: any = rawBindings[key];
-      let value: RDF.Term;
+      let value: RDF.Term = null;
       switch (rawValue.type) {
       case 'bnode':
         value = this.dataFactory.blankNode(rawValue.value);
