@@ -59,7 +59,7 @@ describe('SparqlJsonParser', () => {
   let parser;
 
   beforeEach(() => {
-    parser = new SparqlJsonParser({ prefixVariableQuestionMark: true });
+    parser = new SparqlJsonParser({ prefixVariableQuestionMark: true, suppressMissingStreamResultsError: false });
   });
 
   describe('#parseJsonResults', () => {
