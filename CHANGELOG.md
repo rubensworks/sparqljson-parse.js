@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v2.1.1"></a>
+## [v2.1.1](https://github.com/rubensworks/sparqljson-parse.js/compare/v2.0.1...v2.1.1) - 2022-09-06
+
+### Fixed
+* [Add option to suppress stream results error](https://github.com/rubensworks/sparqljson-parse.js/commit/523efec418e2c678f4e3d72bc047396451c67e18)
+
 <a name="v2.1.0"></a>
 ## [v2.1.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v2.0.1...v2.1.0) - 2022-08-03
 
