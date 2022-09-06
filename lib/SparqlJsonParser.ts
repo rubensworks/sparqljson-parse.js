@@ -13,11 +13,13 @@ export class SparqlJsonParser {
 
   private readonly dataFactory: RDF.DataFactory;
   private readonly prefixVariableQuestionMark?: boolean;
+  private readonly suppressMissingStreamResultsError: boolean;
 
   constructor(settings?: ISettings) {
     settings = settings || {};
     this.dataFactory = settings.dataFactory || new DataFactory();
     this.prefixVariableQuestionMark = !!settings.prefixVariableQuestionMark;
+    this.suppressMissingStreamResultsError = settings.suppressMissingStreamResultsError ?? true;
   }
 
   /**
@@ -61,7 +63,7 @@ export class SparqlJsonParser {
 
     const resultStream = sparqlResponseStream
       .on("end", _ => {
-        if (!resultsFound) {
+        if (!resultsFound && !this.suppressMissingStreamResultsError) {
           resultStream.emit("error", new Error("No valid SPARQL query results were found."))
         } else if (!variablesFound) {
           resultStream.emit('variables', []);
@@ -162,6 +164,10 @@ export interface ISettings {
    * If variable names should be prefixed with a quotation mark.
    */
   prefixVariableQuestionMark?: boolean;
+  /**
+   * If the error about missing results in a result stream should be suppressed.
+   */
+  suppressMissingStreamResultsError?: boolean;
 }
 
 /**
