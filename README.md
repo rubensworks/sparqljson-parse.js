@@ -140,7 +140,7 @@ sparqlJsonParser.parseJsonResultsStream(myStream)
     .on('data', (bindings: IBindings) => console.log(bindings));
 ```
 
-Note that this is part of the SPARQL/JSON specification.
+Note that this is not part of the SPARQL/JSON specification.
 
 ## License
 This software is written by [Ruben Taelman](http://rubensworks.net/).
