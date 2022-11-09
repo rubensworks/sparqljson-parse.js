@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v2.1.2"></a>
+## [v2.1.2](https://github.com/rubensworks/sparqljson-parse.js/compare/v2.1.1...v2.1.2) - 2022-11-09
+
+### Fixed
+* [Include source map files in packed files](https://github.com/rubensworks/sparqljson-parse.js/commit/3f2117ed7158773dee02c9fc9ddce6d9957646f2)
+
 <a name="v2.1.1"></a>
 ## [v2.1.1](https://github.com/rubensworks/sparqljson-parse.js/compare/v2.0.1...v2.1.1) - 2022-09-06
 
