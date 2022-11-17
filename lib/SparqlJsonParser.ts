@@ -1,9 +1,7 @@
 import {DataFactory} from "rdf-data-factory";
 import * as RDF from "@rdfjs/types";
 import {Transform} from "readable-stream";
-
-// tslint:disable-next-line:no-var-requires
-const JsonParser = require('jsonparse');
+import {JsonEvent, JsonStreamPathTransformer, JsonEventParser, IQueryResult, JsonValue} from "json-event-parser";
 
 /**
  * Parser for the SPARQL 1.1 Query Results JSON format.
@@ -42,40 +40,57 @@ export class SparqlJsonParser {
    */
   public parseJsonResultsStream(sparqlResponseStream: NodeJS.ReadableStream): NodeJS.ReadableStream {
     const errorListener = (error: Error) => resultStream.emit('error', error);
-    sparqlResponseStream.on('error', errorListener);
-
-    const jsonParser = new JsonParser();
-    jsonParser.onError = errorListener;
     let variablesFound = false;
     let resultsFound = false;
-    jsonParser.onValue = (value: any) => {
-      if(jsonParser.key === "vars" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
-        resultStream.emit('variables', value.map((v: string) => this.dataFactory.variable(v)));
-        variablesFound = true;
-      } else if(jsonParser.key === "results" && jsonParser.stack.length === 1) {
-        resultsFound = true;
-      } else if(typeof jsonParser.key === 'number' && jsonParser.stack.length === 3 && jsonParser.stack[1].key === 'results' && jsonParser.stack[2].key === 'bindings') {
-        resultStream.push(this.parseJsonBindings(value))
-      } else if(jsonParser.key === "metadata" && jsonParser.stack.length === 1) {
-        resultStream.emit('metadata', value);
-      }
-    }
-
+    const parser = this;
     const resultStream = sparqlResponseStream
-      .on("end", _ => {
-        if (!resultsFound && !this.suppressMissingStreamResultsError) {
-          resultStream.emit("error", new Error("No valid SPARQL query results were found."))
-        } else if (!variablesFound) {
-          resultStream.emit('variables', []);
-        }
-      })
-      .pipe(new Transform({
-        objectMode: true,
-        transform(chunk: any, encoding: string, callback: (error?: Error | null, data?: any) => void) {
-          jsonParser.write(chunk);
-          callback();
-        }
-      }));
+        .on('error', errorListener)
+        .pipe(new JsonEventParser())
+        .on('error', errorListener)
+        .pipe(new JsonStreamPathTransformer([
+          {id: 'vars', query: ['head', 'vars'], returnContent: true},
+          {id: 'bindings', query: ['results', 'bindings'], returnContent: false},
+          {id: 'binding', query: ['results', 'bindings', null], returnContent: true},
+          {id: 'metadata', query: ['metadata'], returnContent: true},
+        ]))
+        .on('error', errorListener)
+        .pipe(
+        new Transform({
+          writableObjectMode: true,
+          readableObjectMode: true,
+          transform(result: IQueryResult, encoding: string, callback: (error?: Error | null, data?: any) => void): void {
+            try {
+              switch (result.query) {
+              case 'vars':
+                variablesFound = true;
+                this.emit('variables', parser.parseVariableList(result.value));
+                break;
+              case 'bindings':
+                resultsFound = true;
+                break;
+              case 'binding':
+                this.push(parser.parseJsonBindings(result.value));
+                break;
+              case 'metadata':
+                this.emit('metadata', result.value);
+              }
+              callback();
+            } catch (e: any) {
+              callback(e);
+            }
+          },
+          flush(callback: (error?: Error | null, data?: any) => void): void {
+            if (!resultsFound && !this.suppressMissingStreamResultsError) {
+              callback(new Error("No valid SPARQL query results were found."));
+              return;
+            }
+            if (!variablesFound) {
+              this.emit('variables', []);
+            }
+            callback();
+          }
+        })
+    );
     return resultStream;
   }
 
@@ -136,20 +151,31 @@ export class SparqlJsonParser {
    */
   public parseJsonBooleanStream(sparqlResponseStream: NodeJS.ReadableStream): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      const parser = new JsonParser();
-      parser.onError = reject;
-      parser.onValue = (value: any) => {
-        if(parser.key === "boolean" && typeof value === 'boolean' && parser.stack.length === 1) {
-          resolve(value);
-        }
-      }
       sparqlResponseStream
           .on('error', reject)
-          .on('data', d => parser.write(d))
+          .pipe(new JsonEventParser())
+          .on('error', reject)
+          .on('data', (event: JsonEvent) => {
+            if(event.type === 'value' && event.key === 'boolean' && typeof event.value === 'boolean') {
+              resolve(event.value);
+            }
+          })
           .on('end', () => reject(new Error('No valid ASK response was found.')));
     });
   }
 
+  private parseVariableList(variables: JsonValue): RDF.Variable[] {
+    if(!Array.isArray(variables)) {
+      throw new Error("The variable list should be an array");
+    }
+    return variables.map(v => {
+      if(typeof v === "string") {
+        return this.dataFactory.variable(v);
+      } else {
+        throw new Error("Variable names should be strings");
+      }
+    });
+  }
 }
 
 /**
