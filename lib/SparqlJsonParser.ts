@@ -3,7 +3,7 @@ import * as RDF from "@rdfjs/types";
 import {Transform} from "readable-stream";
 
 // tslint:disable-next-line:no-var-requires
-const JsonParser = require('jsonparse');
+const JsonParser = require('@bergos/jsonparse');
 
 /**
  * Parser for the SPARQL 1.1 Query Results JSON format.
