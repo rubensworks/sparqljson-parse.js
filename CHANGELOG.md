@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v2.2.0"></a>
+## [v2.2.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v2.1.2...v2.2.0) - 2023-01-27
+
+### Added
+* [Parse quoted RDF-star triples, Closes #48](https://github.com/rubensworks/sparqljson-parse.js/commit/4eafdc9aee218a86b1f36e8848a582fc8252ad48)
+
+### Fixed
+* [Fix Buffer not defined in Web environments, Closes #42](https://github.com/rubensworks/sparqljson-parse.js/commit/221b968f3db33c0b8998e044f1fa5d50de3da39f)
+
 <a name="v2.1.2"></a>
 ## [v2.1.2](https://github.com/rubensworks/sparqljson-parse.js/compare/v2.1.1...v2.1.2) - 2022-11-09
 
