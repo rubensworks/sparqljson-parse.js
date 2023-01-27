@@ -5,7 +5,7 @@
 [![npm version](https://badge.fury.io/js/sparqljson-parse.svg)](https://www.npmjs.com/package/sparqljson-parse)
 
 A utility package that allows you to parse [SPARQL JSON](https://www.w3.org/TR/sparql11-results-json/) results
-in a convenient [RDFJS](http://rdf.js.org/)-based datastructure.
+in a convenient [RDF/JS](https://rdf.js.org/)-based datastructure.
 
 For example, the following SPARQL JSON result can be converted as follows:
 
@@ -23,7 +23,22 @@ In:
       { "book": { "type": "uri", "value": "http://example.org/book/book2" } },
       { "book": { "type": "uri", "value": "http://example.org/book/book3" } },
       { "book": { "type": "uri", "value": "http://example.org/book/book4" } },
-      { "book": { "type": "uri", "value": "http://example.org/book/book5" } }
+      { "book": { "type": "uri", "value": "http://example.org/book/book5" } },
+      {
+        "book": {
+          "type": "triple",
+          "value": {
+            "subject": {
+              "type": "uri",
+              "value": "http://example.org/alice"
+            },
+            "predicate": {
+              "type": "uri",
+              "value": "http://example.org/name"
+            }
+          }
+        }
+      }
     ]
   }
 }
@@ -37,12 +52,13 @@ Out:
   { '?book': namedNode('http://example.org/book/book3') },
   { '?book': namedNode('http://example.org/book/book4') },
   { '?book': namedNode('http://example.org/book/book5') },
+    { '?book': quad(namedNode('http://example.org/bob'), namedNode('http://example.org/name'), literal('Bob', namedNode('http://example.org/Type'))) },
 ]
 ```
 
-Where `namedNode` is an RDFJS named node.
+Where `namedNode` is an RDF/JS named node, `quad` is an RDF/JS quad/triple, and `literal` is an RDF/JS literal.
 
-This library automatically converts all SPARQL JSON result values to their respective RDFJS type.
+This library automatically converts all SPARQL JSON result values to their respective RDF/JS type.
 
 ## Usage
 

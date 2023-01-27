@@ -55,7 +55,11 @@ export class SparqlJsonParser {
       } else if(jsonParser.key === "results" && jsonParser.stack.length === 1) {
         resultsFound = true;
       } else if(typeof jsonParser.key === 'number' && jsonParser.stack.length === 3 && jsonParser.stack[1].key === 'results' && jsonParser.stack[2].key === 'bindings') {
-        resultStream.push(this.parseJsonBindings(value))
+        try {
+          resultStream.push(this.parseJsonBindings(value))
+        } catch (error) {
+          resultStream.emit("error", error);
+        }
       } else if(jsonParser.key === "metadata" && jsonParser.stack.length === 1) {
         resultStream.emit('metadata', value);
       }
@@ -88,31 +92,51 @@ export class SparqlJsonParser {
     const bindings: IBindings = {};
     for (const key in rawBindings) {
       const rawValue: any = rawBindings[key];
-      let value: RDF.Term = null;
-      switch (rawValue.type) {
-      case 'bnode':
-        value = this.dataFactory.blankNode(rawValue.value);
-        break;
-      case 'literal':
-        if (rawValue['xml:lang']) {
-          value = this.dataFactory.literal(rawValue.value, rawValue['xml:lang']);
-        } else if (rawValue.datatype) {
-          value = this.dataFactory.literal(rawValue.value, this.dataFactory.namedNode(rawValue.datatype));
-        } else {
-          value = this.dataFactory.literal(rawValue.value);
-        }
-        break;
-      case 'typed-literal':
-        // Virtuoso uses this non-spec-compliant way of defining typed literals
-        value = this.dataFactory.literal(rawValue.value, this.dataFactory.namedNode(rawValue.datatype));
-        break;
-      default:
-        value = this.dataFactory.namedNode(rawValue.value);
-        break;
-      }
-      bindings[this.prefixVariableQuestionMark ? ('?' + key) : key] = value;
+      bindings[this.prefixVariableQuestionMark ? ('?' + key) : key] = this.parseJsonValue(rawValue);
     }
     return bindings;
+  }
+
+  /**
+   * Convert a SPARQL JSON result value to an RDF term.
+   * @param rawValue A SPARQL JSON result value
+   * @return {RDF.Term} An RDF term.
+   */
+  public parseJsonValue(rawValue: any): RDF.Term {
+    let value: RDF.Term;
+    switch (rawValue.type) {
+    case 'bnode':
+      value = this.dataFactory.blankNode(rawValue.value);
+      break;
+    case 'literal':
+      if (rawValue['xml:lang']) {
+        value = this.dataFactory.literal(rawValue.value, rawValue['xml:lang']);
+      } else if (rawValue.datatype) {
+        value = this.dataFactory.literal(rawValue.value, this.dataFactory.namedNode(rawValue.datatype));
+      } else {
+        value = this.dataFactory.literal(rawValue.value);
+      }
+      break;
+    case 'typed-literal':
+      // Virtuoso uses this non-spec-compliant way of defining typed literals
+      value = this.dataFactory.literal(rawValue.value, this.dataFactory.namedNode(rawValue.datatype));
+      break;
+    case 'triple':
+      const tripleValue = rawValue.value;
+      if (!tripleValue || !tripleValue.subject || !tripleValue.predicate || !tripleValue.object) {
+        throw new Error('Invalid quoted triple: ' + JSON.stringify(rawValue));
+      }
+      value = this.dataFactory.quad(
+        <RDF.Quad_Subject> this.parseJsonValue(tripleValue.subject),
+        <RDF.Quad_Predicate> this.parseJsonValue(tripleValue.predicate),
+        <RDF.Quad_Object> this.parseJsonValue(tripleValue.object),
+      );
+      break;
+    default:
+      value = this.dataFactory.namedNode(rawValue.value);
+      break;
+    }
+    return value;
   }
 
   /**

@@ -160,6 +160,73 @@ describe('SparqlJsonParser', () => {
       ]);
     });
 
+    it('should convert a SPARQL JSON response with nested triples', async () => {
+      return expect(await arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
+{
+  "head": { "vars": [ "book" ] },
+  "results": {
+    "bindings": [
+      {
+        "book": {
+          "type": "triple",
+          "value": {
+             "subject": {
+                "type": "uri",
+                "value": "http://example.org/alice"
+             },
+             "predicate": {
+                "type": "uri",
+                "value": "http://example.org/name"
+             },
+             "object": {
+                "type": "literal",
+                "value": "Alice",
+                "datatype": "http://www.w3.org/2001/XMLSchema#string"
+             }
+          }
+        }
+      }
+    ]
+  }
+}
+`)))).toEqual([
+  {
+    '?book': DF.quad(
+      DF.namedNode('http://example.org/alice'),
+      DF.namedNode('http://example.org/name'),
+      DF.literal('Alice', DF.namedNode('http://www.w3.org/2001/XMLSchema#string')),
+  ),
+  },
+]);
+    });
+
+    it('should emit an error on a SPARQL JSON response with invald nested triples', async () => {
+      return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
+{
+  "head": { "vars": [ "book" ] },
+  "results": {
+    "bindings": [
+      {
+        "book": {
+          "type": "triple",
+          "value": {
+             "subject": {
+                "type": "uri",
+                "value": "http://example.org/alice"
+             },
+             "predicate": {
+                "type": "uri",
+                "value": "http://example.org/name"
+             }
+          }
+        }
+      }
+    ]
+  }
+}
+`)))).rejects.toThrow('Invalid quoted triple');
+    });
+
     it('should reject a boolean payload', async () => {
       return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString(`{"head": {}, "boolean": true}`)))).rejects.toBeTruthy();
     });
@@ -238,6 +305,117 @@ describe('SparqlJsonParser', () => {
       return expect(parser.parseJsonBindings({
         book: { type: 'typed-literal', value: 'abc', datatype: 'http://ex' },
       })).toEqual({ '?book': DF.literal('abc', DF.namedNode('http://ex')) });
+    });
+
+    it('should convert bindings with triples', () => {
+      return expect(parser.parseJsonBindings({
+        book: {
+          type: 'triple',
+          value: {
+            subject: {
+              type: 'uri',
+              value: 'http://example.org/alice'
+            },
+            predicate: {
+              type: 'uri',
+              value: 'http://example.org/name'
+            },
+            'object': {
+              type: 'literal',
+              value: 'Alice',
+              datatype: 'http://example.org/Type'
+            },
+          }
+        },
+      })).toEqual({
+        '?book': DF.quad(
+          DF.namedNode('http://example.org/alice'),
+          DF.namedNode('http://example.org/name'),
+          DF.literal('Alice', DF.namedNode('http://example.org/Type')),
+        ),
+      });
+    });
+
+    it('should convert bindings with nested triples', () => {
+      return expect(parser.parseJsonBindings({
+        book: {
+          type: 'triple',
+          value: {
+            subject: {
+              type: 'triple',
+              value: {
+                subject: {
+                  type: 'uri',
+                  value: 'http://example.org/alice'
+                },
+                predicate: {
+                  type: 'uri',
+                  value: 'http://example.org/name'
+                },
+                'object': {
+                  type: 'literal',
+                  value: 'Alice',
+                  datatype: 'http://example.org/Type'
+                },
+              }
+            },
+            predicate: {
+              type: 'uri',
+              value: 'http://example.org/sameAs'
+            },
+            'object': {
+              type: 'triple',
+              value: {
+                subject: {
+                  type: 'uri',
+                  value: 'http://example.org/alice'
+                },
+                predicate: {
+                  type: 'uri',
+                  value: 'http://example.org/name'
+                },
+                'object': {
+                  type: 'literal',
+                  value: 'Alice',
+                  datatype: 'http://example.org/Type'
+                },
+              }
+            },
+          }
+        },
+      })).toEqual({
+        '?book': DF.quad(
+          DF.quad(
+            DF.namedNode('http://example.org/alice'),
+            DF.namedNode('http://example.org/name'),
+            DF.literal('Alice', DF.namedNode('http://example.org/Type')),
+          ),
+          DF.namedNode('http://example.org/sameAs'),
+          DF.quad(
+            DF.namedNode('http://example.org/alice'),
+            DF.namedNode('http://example.org/name'),
+            DF.literal('Alice', DF.namedNode('http://example.org/Type')),
+          ),
+        ),
+      });
+    });
+
+    it('should throw on bindings with invalid triples', () => {
+      return expect(() => parser.parseJsonBindings({
+        book: {
+          type: 'triple',
+          value: {
+            subject: {
+              type: 'uri',
+              value: 'http://example.org/alice'
+            },
+            predicate: {
+              type: 'uri',
+              value: 'http://example.org/name'
+            },
+          }
+        },
+      })).toThrow('Invalid quoted triple');
     });
 
     it('should convert mixed bindings', () => {
