@@ -110,7 +110,9 @@ export class SparqlJsonParser {
       break;
     case 'literal':
       if (rawValue['xml:lang']) {
-        value = this.dataFactory.literal(rawValue.value, rawValue['xml:lang']);
+        const language = rawValue['xml:lang'];
+        const direction = rawValue['its:dir'];
+        value = this.dataFactory.literal(rawValue.value, { language, direction });
       } else if (rawValue.datatype) {
         value = this.dataFactory.literal(rawValue.value, this.dataFactory.namedNode(rawValue.datatype));
       } else {
