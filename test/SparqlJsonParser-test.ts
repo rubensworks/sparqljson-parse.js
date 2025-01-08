@@ -295,6 +295,12 @@ describe('SparqlJsonParser', () => {
       })).toEqual({ '?book': DF.literal('abc', 'en-us') });
     });
 
+    it('should convert bindings with languaged literals with direction', () => {
+      return expect(parser.parseJsonBindings({
+        book: { 'type': 'literal', 'value': 'abc', 'xml:lang': 'en-us', 'its:dir': 'ltr' },
+      })).toEqual({ '?book': DF.literal('abc', { language: 'en-us', direction: 'ltr' }) });
+    });
+
     it('should convert bindings with datatyped literals', () => {
       return expect(parser.parseJsonBindings({
         book: { type: 'literal', value: 'abc', datatype: 'http://ex' },
