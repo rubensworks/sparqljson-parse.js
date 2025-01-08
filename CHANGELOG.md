@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v3.0.0"></a>
+## [v3.0.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v2.2.0...v3.0.0) - 2025-01-08
+
+### BREAKING CHANGES
+* [Update to rdf-data-factory v2](https://github.com/rubensworks/sparqljson-parse.js/commit/b2c2926c5cbcc831b064f97c5cc26a9305de1ed5)
+    This includes a bump to @rdfjs/types@2.0.0, which requires TypeScript 5 and Node 14+
+
+### Added
+* [Add optional direction for literals](https://github.com/rubensworks/sparqljson-parse.js/commit/e5fe4c9a9bfcccd3bb8edbbd476f699a005f9d75)
+
 <a name="v2.2.0"></a>
 ## [v2.2.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v2.1.2...v2.2.0) - 2023-01-27
 
