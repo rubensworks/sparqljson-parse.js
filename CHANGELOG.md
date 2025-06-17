@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v3.1.0"></a>
+## [v3.1.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v3.0.0...v3.1.0) - 2025-06-17
+
+### Added
+* [Parse version and link head elements](https://github.com/rubensworks/sparqljson-parse.js/commit/532366da8da1e2a946068abaafe953492a8c4a72)
+
 <a name="v3.0.0"></a>
 ## [v3.0.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v2.2.0...v3.0.0) - 2025-01-08
 
