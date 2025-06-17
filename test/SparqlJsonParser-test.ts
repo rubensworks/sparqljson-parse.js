@@ -121,6 +121,30 @@ describe('SparqlJsonParser', () => {
       ]);
     });
 
+    it('should convert an empty SPARQL JSON response and emit the links', async () => {
+      const stream = parser.parseJsonResultsStream(streamifyString(`
+{
+  "head": { "vars": [], "link": [ "http://example/dataset/metadata.ttl" ] },
+  "results": {
+    "bindings": []
+  }
+}
+`));
+      return expect(new Promise((resolve) => stream.on('link', resolve))).resolves.toEqual([ "http://example/dataset/metadata.ttl" ]);
+    });
+
+    it('should convert an empty SPARQL JSON response and emit the version', async () => {
+      const stream = parser.parseJsonResultsStream(streamifyString(`
+{
+  "head": { "vars": [], "version": "1.2" },
+  "results": {
+    "bindings": []
+  }
+}
+`));
+      return expect(new Promise((resolve) => stream.on('version', resolve))).resolves.toEqual('1.2');
+    });
+
     it('should convert a SPARQL JSON response', async () => {
       return expect(await arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
 {

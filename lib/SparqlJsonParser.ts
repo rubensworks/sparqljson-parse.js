@@ -52,6 +52,10 @@ export class SparqlJsonParser {
       if(jsonParser.key === "vars" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
         resultStream.emit('variables', value.map((v: string) => this.dataFactory.variable(v)));
         variablesFound = true;
+      } else if(jsonParser.key === "link" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
+        resultStream.emit('link', value);
+      } else if(jsonParser.key === "version" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
+        resultStream.emit('version', value);
       } else if(jsonParser.key === "results" && jsonParser.stack.length === 1) {
         resultsFound = true;
       } else if(typeof jsonParser.key === 'number' && jsonParser.stack.length === 3 && jsonParser.stack[1].key === 'results' && jsonParser.stack[2].key === 'bindings') {
