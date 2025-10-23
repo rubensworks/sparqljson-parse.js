@@ -145,6 +145,17 @@ describe('SparqlJsonParser', () => {
       return expect(new Promise((resolve) => stream.on('version', resolve))).resolves.toEqual('1.2');
     });
 
+    it('should throw on an unknown SPARQL version', async () => {
+      return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
+{
+  "head": { "vars": [], "version": "1.2-unknown" },
+  "results": {
+    "bindings": []
+  }
+}
+`)))).rejects.toThrow('Detected unsupported version: 1.2-unknown');
+    });
+
     it('should convert a SPARQL JSON response', async () => {
       return expect(await arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
 {

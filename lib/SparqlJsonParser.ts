@@ -11,15 +11,23 @@ const JsonParser = require('@bergos/jsonparse');
  */
 export class SparqlJsonParser {
 
+  public static SUPPORTED_VERSIONS: string[] = [
+    '1.2',
+    '1.2-basic',
+    '1.1',
+  ];
+
   private readonly dataFactory: RDF.DataFactory;
   private readonly prefixVariableQuestionMark?: boolean;
   private readonly suppressMissingStreamResultsError: boolean;
+  private readonly parseUnsupportedVersions: boolean;
 
   constructor(settings?: ISettings) {
     settings = settings || {};
     this.dataFactory = settings.dataFactory || new DataFactory();
     this.prefixVariableQuestionMark = !!settings.prefixVariableQuestionMark;
     this.suppressMissingStreamResultsError = settings.suppressMissingStreamResultsError ?? true;
+    this.parseUnsupportedVersions = !!settings.parseUnsupportedVersions;
   }
 
   /**
@@ -55,6 +63,9 @@ export class SparqlJsonParser {
       } else if(jsonParser.key === "link" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
         resultStream.emit('link', value);
       } else if(jsonParser.key === "version" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
+        if (!this.parseUnsupportedVersions && !SparqlJsonParser.SUPPORTED_VERSIONS.includes(value)) {
+          resultStream.emit("error", new Error(`Detected unsupported version: ${value}`));
+        }
         resultStream.emit('version', value);
       } else if(jsonParser.key === "results" && jsonParser.stack.length === 1) {
         resultsFound = true;
@@ -198,6 +209,10 @@ export interface ISettings {
    * If the error about missing results in a result stream should be suppressed.
    */
   suppressMissingStreamResultsError?: boolean;
+  /**
+   * If no error should be emitted on unsupported versions.
+   */
+  parseUnsupportedVersions?: boolean;
 }
 
 /**

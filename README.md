@@ -135,6 +135,9 @@ sparqlJsonParser.parseJsonResultsStream(myStream)
 `sparqlJsonParser.parseJsonBooleanStream` also takes a stream as input,
 but it returns a promise that resolves to a boolean.
 
+The error thrown for unsupported versions can be skipped
+by setting `parseUnsupportedVersions` to `true` when constructing the parser.
+
 ### Advanced: metadata entries
 
 This library can recognise metadata on the result stream in the following form:
