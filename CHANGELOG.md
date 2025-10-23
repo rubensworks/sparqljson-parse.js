@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v3.2.0"></a>
+## [v3.2.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v3.1.0...v3.2.0) - 2025-10-23
+
+### Changed
+* [Emit error on unsupported versions](https://github.com/rubensworks/sparqljson-parse.js/commit/571d0d971783d5b09e7492b96c451e6ee8447eae)
+
 <a name="v3.1.0"></a>
 ## [v3.1.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v3.0.0...v3.1.0) - 2025-06-17
 
