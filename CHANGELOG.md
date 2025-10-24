@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+<a name="v3.3.0"></a>
+## [v3.3.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v3.2.0...v3.3.0) - 2025-10-24
+
+### Added
+* [Accept and validate version as media type parameter](https://github.com/rubensworks/sparqljson-parse.js/commit/de3abcae186e15112aa8bfe384fa1886c6a7b600)
+
 <a name="v3.2.0"></a>
 ## [v3.2.0](https://github.com/rubensworks/sparqljson-parse.js/compare/v3.1.0...v3.2.0) - 2025-10-23
 
