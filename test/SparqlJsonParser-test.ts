@@ -57,14 +57,30 @@ describe('SparqlJsonParser', () => {
   });
 
   let parser;
+  let parserLenient;
 
   beforeEach(() => {
     parser = new SparqlJsonParser({ prefixVariableQuestionMark: true, suppressMissingStreamResultsError: false });
+    parserLenient = new SparqlJsonParser({
+      prefixVariableQuestionMark: true,
+      suppressMissingStreamResultsError: false,
+      parseUnsupportedVersions: true,
+    });
   });
 
   describe('#parseJsonResults', () => {
     it('should convert an empty SPARQL JSON response', () => {
       return expect(parser.parseJsonResults({ results: { bindings: [] } })).toEqual([]);
+    });
+
+    it('should throw on an unsupported media type version', () => {
+      return expect(() => parser.parseJsonResults({ results: { bindings: [] } }, 'version-unknown'))
+          .toThrow('Detected unsupported version as media type parameter: version-unknown');
+    });
+
+    it('should not throw on an unsupported media type version if parseUnsupportedVersions is true', () => {
+      return expect(() => parserLenient.parseJsonResults({ results: { bindings: [] } }, 'version-unknown'))
+          .not.toThrow();
     });
 
     it('should convert a non-empty SPARQL JSON response', () => {
@@ -94,6 +110,17 @@ describe('SparqlJsonParser', () => {
   }
 }
 `)))).toEqual([]);
+    });
+
+    it('should throw on an unsupported media type version', async () => {
+      return await expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
+{
+  "head": { "vars": [] },
+  "results": {
+    "bindings": []
+  }
+}
+`), 'version-unknown'))).rejects.toThrow('Detected unsupported version as media type parameter: version-unknown');
     });
 
     it('should convert an empty SPARQL JSON response and emit the variables', async () => {
@@ -481,6 +508,11 @@ describe('SparqlJsonParser', () => {
       return expect(() => parser.parseJsonBoolean({})).toThrow();
     });
 
+    it('should throw on an unsupported media type version', () => {
+      return expect(() => parser.parseJsonBoolean({}, 'version-unknown'))
+          .toThrow('Detected unsupported version as media type parameter: version-unknown');
+    });
+
     it('should convert an true SPARQL JSON boolean response', () => {
       return expect(parser.parseJsonBoolean({ boolean: true })).toEqual(true);
     });
@@ -497,6 +529,11 @@ describe('SparqlJsonParser', () => {
 
     it('should convert a true SPARQL JSON boolean response', async () => {
       return expect(await parser.parseJsonBooleanStream(streamifyString(`{ "boolean": true }`))).toEqual(true);
+    });
+
+    it('should throw on an unsupported media type version', async() => {
+      return await expect(parser.parseJsonBooleanStream(streamifyString(`{ "boolean": true }`), 'version-unknown'))
+          .rejects.toThrow('Detected unsupported version as media type parameter: version-unknown');
     });
 
     it('should convert a false SPARQL JSON boolean response', async () => {

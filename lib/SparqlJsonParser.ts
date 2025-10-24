@@ -31,11 +31,23 @@ export class SparqlJsonParser {
   }
 
   /**
+   * If the given version is valid for this parser to handle.
+   * @param version A version string.
+   */
+  public isValidVersion(version: string): boolean {
+    return this.parseUnsupportedVersions || SparqlJsonParser.SUPPORTED_VERSIONS.includes(version);
+  }
+
+  /**
    * Convert a SPARQL JSON bindings response to an array of bindings objects.
    * @param sparqlResponse A SPARQL JSON response.
+   * @param version The version that was supplied as a media type parameter
    * @return {IBindings[]} An array of bindings.
    */
-  public parseJsonResults(sparqlResponse: any): IBindings[] {
+  public parseJsonResults(sparqlResponse: any, version?: string): IBindings[] {
+    if (version && !this.isValidVersion(version)) {
+      throw new Error(`Detected unsupported version as media type parameter: ${version}`);
+    }
     return sparqlResponse.results.bindings.map((rawBindings: any) => this.parseJsonBindings(rawBindings));
   }
 
@@ -46,9 +58,10 @@ export class SparqlJsonParser {
    * the array of variables (as RDF.Variable[]), as defined in the response head.
    *
    * @param {NodeJS.ReadableStream} sparqlResponseStream A SPARQL JSON response stream.
+   * @param version The version that was supplied as a media type parameter
    * @return {NodeJS.ReadableStream} A stream of bindings.
    */
-  public parseJsonResultsStream(sparqlResponseStream: NodeJS.ReadableStream): NodeJS.ReadableStream {
+  public parseJsonResultsStream(sparqlResponseStream: NodeJS.ReadableStream, version?: string): NodeJS.ReadableStream {
     const errorListener = (error: Error) => resultStream.emit('error', error);
     sparqlResponseStream.on('error', errorListener);
 
@@ -63,7 +76,7 @@ export class SparqlJsonParser {
       } else if(jsonParser.key === "link" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
         resultStream.emit('link', value);
       } else if(jsonParser.key === "version" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
-        if (!this.parseUnsupportedVersions && !SparqlJsonParser.SUPPORTED_VERSIONS.includes(value)) {
+        if (!this.isValidVersion(value)) {
           resultStream.emit("error", new Error(`Detected unsupported version: ${value}`));
         }
         resultStream.emit('version', value);
@@ -95,6 +108,11 @@ export class SparqlJsonParser {
           callback();
         }
       }));
+
+    if (version && !this.isValidVersion(version)) {
+      resultStream.destroy(new Error(`Detected unsupported version as media type parameter: ${version}`));
+    }
+
     return resultStream;
   }
 
@@ -160,9 +178,13 @@ export class SparqlJsonParser {
    * Convert a SPARQL JSON boolean response to a boolean.
    * This will throw an error if the given reponse was not a valid boolean response.
    * @param sparqlResponse A SPARQL JSON response.
+   * @param version The version that was supplied as a media type parameter
    * @return {IBindings[]} An array of bindings.
    */
-  public parseJsonBoolean(sparqlResponse: any): boolean {
+  public parseJsonBoolean(sparqlResponse: any, version?: string): boolean {
+    if (version && !this.isValidVersion(version)) {
+      throw new Error(`Detected unsupported version as media type parameter: ${version}`);
+    }
     if ('boolean' in sparqlResponse) {
       return sparqlResponse.boolean;
     }
@@ -173,9 +195,13 @@ export class SparqlJsonParser {
    * Convert a SPARQL JSON boolean response stream to a promise resolving to a boolean.
    * This will reject if the given reponse was not a valid boolean response.
    * @param {NodeJS.ReadableStream} sparqlResponseStream A SPARQL JSON response stream.
+   * @param version The version that was supplied as a media type parameter
    * @return {Promise<boolean>} The response boolean.
    */
-  public parseJsonBooleanStream(sparqlResponseStream: NodeJS.ReadableStream): Promise<boolean> {
+  public parseJsonBooleanStream(sparqlResponseStream: NodeJS.ReadableStream, version?: string): Promise<boolean> {
+    if (version && !this.isValidVersion(version)) {
+      return Promise.reject(new Error(`Detected unsupported version as media type parameter: ${version}`));
+    }
     return new Promise((resolve, reject) => {
       const parser = new JsonParser();
       parser.onError = reject;
