@@ -71,7 +71,7 @@ export class SparqlJsonParser {
     let resultsFound = false;
     jsonParser.onValue = (value: any) => {
       if(jsonParser.key === "vars" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
-        resultStream.emit('variables', value.map((v: string) => this.dataFactory.variable(v)));
+        resultStream.emit('variables', value.map((v: string) => this.dataFactory.variable!(v)));
         variablesFound = true;
       } else if(jsonParser.key === "link" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
         resultStream.emit('link', value);
