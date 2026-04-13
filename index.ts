@@ -1,1 +1,1 @@
-export * from "./lib/SparqlJsonParser";
+export * from './lib/SparqlJsonParser';

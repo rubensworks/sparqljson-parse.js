@@ -15,4 +15,4 @@ yarn-error.log
 **/index.js.map
 **/index.d.ts
 coverage
-documentation
+.eslintcache
