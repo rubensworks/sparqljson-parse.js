@@ -1,7 +1,20 @@
 {
   "name": "sparqljson-parse",
   "version": "3.3.0",
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "description": "Parses SPARQL JSON query results",
+  "typings": "index",
+  "author": "Ruben Taelman <rubensworks@gmail.com>",
+  "license": "MIT",
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/rubensworks/"
+  },
+  "homepage": "https://github.com/rubensworks/sparqljson-parse.js#readme",
+  "repository": "git@github.com:rubensworks/sparqljson-parse.js.git",
+  "bugs": {
+    "url": "https://github.com/rubensworks/sparqljson-parse.js/issues"
+  },
   "keywords": [
     "sparql",
     "json",
@@ -9,50 +22,21 @@
     "rdf",
     "linked data"
   ],
+  "sideEffects": false,
   "main": "index.js",
-  "typings": "index",
-  "repository": "git@github.com:rubensworks/sparqljson-parse.js.git",
-  "author": "Ruben Taelman <rubensworks@gmail.com>",
-  "funding": {
-    "type": "individual",
-    "url": "https://github.com/sponsors/rubensworks/"
-  },
-  "bugs": {
-    "url": "https://github.com/rubensworks/sparqljson-parse.js/issues"
-  },
-  "homepage": "https://github.com/rubensworks/sparqljson-parse.js#readme",
-  "license": "MIT",
   "files": [
+    "index.d.ts",
+    "index.js",
+    "index.js.map",
     "lib/**/*.d.ts",
     "lib/**/*.js",
-    "lib/**/*.js.map",
-    "index.d.ts",
-    "index.js.map",
-    "index.js"
+    "lib/**/*.js.map"
   ],
   "pre-commit": [
     "build",
     "lint",
     "test"
   ],
-  "devDependencies": {
-    "@types/jest": "^30.0.0",
-    "@types/minimist": "^1.2.0",
-    "arrayify-stream": "^2.0.0",
-    "coveralls": "^3.0.0",
-    "jest": "^30.0.0",
-    "jest-rdf": "^2.0.0",
-    "manual-git-changelog": "^1.0.0",
-    "pre-commit": "^1.2.2",
-    "streamify-string": "^1.0.1",
-    "ts-jest": "^29.0.0",
-    "ts-loader": "^9.3.1",
-    "@rubensworks/eslint-config": "^3.0.0",
-    "eslint": "^8.0.0",
-    "typescript": "^6.0.0",
-    "webpack": "^5.73.0",
-    "webpack-cli": "^7.0.0"
-  },
   "jest": {
     "globals": {
       "ts-jest": {
@@ -80,18 +64,34 @@
     "test": "jest ${1}",
     "test-watch": "jest ${1} --watch",
     "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
-    "lint": "eslint . --ext .ts --cache",
+    "lint": "ESLINT_USE_FLAT_CONFIG=true eslint . --cache",
     "build": "tsc",
     "validate": "npm ls",
     "prepare": "npm run build",
     "version": "manual-git-changelog onversion"
   },
   "dependencies": {
-    "@types/readable-stream": "^4.0.0",
     "@bergos/jsonparse": "^1.4.1",
+    "@types/readable-stream": "^4.0.0",
     "rdf-data-factory": "^2.0.0",
     "readable-stream": "^4.0.0"
   },
-  "sideEffects": false,
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "devDependencies": {
+    "@rubensworks/eslint-config": "^3.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/minimist": "^1.2.0",
+    "arrayify-stream": "^2.0.0",
+    "coveralls": "^3.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^30.0.0",
+    "jest-rdf": "^2.0.0",
+    "manual-git-changelog": "^1.0.0",
+    "pre-commit": "^1.2.2",
+    "streamify-string": "^1.0.1",
+    "ts-jest": "^29.0.0",
+    "ts-loader": "^9.3.1",
+    "typescript": "^6.0.0",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^7.0.0"
+  }
 }

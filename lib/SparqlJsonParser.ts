@@ -97,7 +97,7 @@ export class SparqlJsonParser {
     };
 
     const resultStream = sparqlResponseStream
-      .on('end', _ => {
+      .on('end', () => {
         if (!resultsFound && !this.suppressMissingStreamResultsError) {
           resultStream.emit('error', new Error('No valid SPARQL query results were found.'));
         } else if (!variablesFound) {
@@ -248,4 +248,3 @@ export interface ISettings {
  * A bindings object.
  */
 export type IBindings = Record<string, RDF.Term>;
-
