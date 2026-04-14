@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "types": ["node", "jest"],
-    "noImplicitAny": false,
     "lib": [
       "es6"
-    ]
+    ],
+    "module": "commonjs",
+    "types": ["node", "jest"],
+    "noImplicitAny": false
   }
 }

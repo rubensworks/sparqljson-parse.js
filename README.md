@@ -15,7 +15,7 @@ In:
   "head": {
     "vars": [
       "book"
-      ]
+    ]
   },
   "results": {
     "bindings": [
@@ -144,7 +144,7 @@ This library can recognise metadata on the result stream in the following form:
 
 ```json
 {
-  "head": { "vars": [ "book", "library" ] },
+  "head": { "vars": ["book", "library"] },
   "results": {
     "bindings": [
       { "book": { "type": "uri", "value": "http://example.org/book/book1" }, "library": { "type": "uri", "value": "http://example.org/book/library1" } }

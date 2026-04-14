@@ -1,13 +1,13 @@
-import {DataFactory} from "rdf-data-factory";
-import "jest-rdf";
-import {PassThrough} from "stream";
-import {SparqlJsonParser} from "../lib/SparqlJsonParser";
+import { PassThrough } from 'node:stream';
 import arrayifyStream from 'arrayify-stream';
-const streamifyString = require('streamify-string');
+import 'jest-rdf';
+import { DataFactory } from 'rdf-data-factory';
+import streamifyString = require('streamify-string');
+import { SparqlJsonParser } from '../lib/SparqlJsonParser';
+
 const DF = new DataFactory();
 
 describe('SparqlJsonParser', () => {
-
   describe('constructed without options', () => {
     const optionlessInstance = new SparqlJsonParser();
 
@@ -48,7 +48,7 @@ describe('SparqlJsonParser', () => {
     });
 
     it('should have the default data factory', () => {
-      return expect((<any> optionsInstance).dataFactory).toEqual('abc');
+      return expect((<any> optionsInstance).dataFactory).toBe('abc');
     });
 
     it('should not prefix variables with a question mark', () => {
@@ -70,27 +70,27 @@ describe('SparqlJsonParser', () => {
 
   describe('#parseJsonResults', () => {
     it('should convert an empty SPARQL JSON response', () => {
-      return expect(parser.parseJsonResults({ results: { bindings: [] } })).toEqual([]);
+      return expect(parser.parseJsonResults({ results: { bindings: []}})).toEqual([]);
     });
 
     it('should throw on an unsupported media type version', () => {
-      return expect(() => parser.parseJsonResults({ results: { bindings: [] } }, 'version-unknown'))
-          .toThrow('Detected unsupported version as media type parameter: version-unknown');
+      return expect(() => parser.parseJsonResults({ results: { bindings: []}}, 'version-unknown'))
+        .toThrow('Detected unsupported version as media type parameter: version-unknown');
     });
 
     it('should not throw on an unsupported media type version if parseUnsupportedVersions is true', () => {
-      return expect(() => parserLenient.parseJsonResults({ results: { bindings: [] } }, 'version-unknown'))
-          .not.toThrow();
+      return expect(() => parserLenient.parseJsonResults({ results: { bindings: []}}, 'version-unknown'))
+        .not.toThrow();
     });
 
     it('should convert a non-empty SPARQL JSON response', () => {
       return expect(parser.parseJsonResults({ results: { bindings: [
-        { book: { type: 'uri', value: 'http://example.org/book/book1' } },
-        { book: { type: 'uri', value: 'http://example.org/book/book2' } },
-        { book: { type: 'uri', value: 'http://example.org/book/book3' } },
-        { book: { type: 'uri', value: 'http://example.org/book/book4' } },
-        { book: { type: 'uri', value: 'http://example.org/book/book5' } },
-      ] } })).toEqual([
+        { book: { type: 'uri', value: 'http://example.org/book/book1' }},
+        { book: { type: 'uri', value: 'http://example.org/book/book2' }},
+        { book: { type: 'uri', value: 'http://example.org/book/book3' }},
+        { book: { type: 'uri', value: 'http://example.org/book/book4' }},
+        { book: { type: 'uri', value: 'http://example.org/book/book5' }},
+      ]}})).toEqual([
         { '?book': DF.namedNode('http://example.org/book/book1') },
         { '?book': DF.namedNode('http://example.org/book/book2') },
         { '?book': DF.namedNode('http://example.org/book/book3') },
@@ -101,18 +101,18 @@ describe('SparqlJsonParser', () => {
   });
 
   describe('#parseJsonResultsStream', () => {
-    it('should convert an empty SPARQL JSON response', async () => {
-      return expect(await arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
+    it('should convert an empty SPARQL JSON response', async() => {
+      return await expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
 {
   "head": { "vars": [] },
   "results": {
     "bindings": []
   }
 }
-`)))).toEqual([]);
+`)))).resolves.toEqual([]);
     });
 
-    it('should throw on an unsupported media type version', async () => {
+    it('should throw on an unsupported media type version', async() => {
       return await expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
 {
   "head": { "vars": [] },
@@ -123,7 +123,7 @@ describe('SparqlJsonParser', () => {
 `), 'version-unknown'))).rejects.toThrow('Detected unsupported version as media type parameter: version-unknown');
     });
 
-    it('should convert an empty SPARQL JSON response and emit the variables', async () => {
+    it('should convert an empty SPARQL JSON response and emit the variables', async() => {
       const stream = parser.parseJsonResultsStream(streamifyString(`
 {
   "head": { "vars": [] },
@@ -132,11 +132,11 @@ describe('SparqlJsonParser', () => {
   }
 }
 `));
-      return expect(new Promise((resolve) => stream.on('variables', resolve))).resolves.toEqualRdfTermArray([
+      return expect(new Promise(resolve => stream.on('variables', resolve))).resolves.toEqualRdfTermArray([
       ]);
     });
 
-    it('should convert a more empty SPARQL JSON response and emit the variables', async () => {
+    it('should convert a more empty SPARQL JSON response and emit the variables', async() => {
       const stream = parser.parseJsonResultsStream(streamifyString(`
 {
   "results": {
@@ -144,11 +144,11 @@ describe('SparqlJsonParser', () => {
   }
 }
 `));
-      return expect(new Promise((resolve) => stream.on('variables', resolve))).resolves.toEqualRdfTermArray([
+      return expect(new Promise(resolve => stream.on('variables', resolve))).resolves.toEqualRdfTermArray([
       ]);
     });
 
-    it('should convert an empty SPARQL JSON response and emit the links', async () => {
+    it('should convert an empty SPARQL JSON response and emit the links', async() => {
       const stream = parser.parseJsonResultsStream(streamifyString(`
 {
   "head": { "vars": [], "link": [ "http://example/dataset/metadata.ttl" ] },
@@ -157,10 +157,11 @@ describe('SparqlJsonParser', () => {
   }
 }
 `));
-      return expect(new Promise((resolve) => stream.on('link', resolve))).resolves.toEqual([ "http://example/dataset/metadata.ttl" ]);
+      return expect(new Promise(resolve => stream.on('link', resolve)))
+        .resolves.toEqual([ 'http://example/dataset/metadata.ttl' ]);
     });
 
-    it('should convert an empty SPARQL JSON response and emit the version', async () => {
+    it('should convert an empty SPARQL JSON response and emit the version', async() => {
       const stream = parser.parseJsonResultsStream(streamifyString(`
 {
   "head": { "vars": [], "version": "1.2" },
@@ -169,10 +170,10 @@ describe('SparqlJsonParser', () => {
   }
 }
 `));
-      return expect(new Promise((resolve) => stream.on('version', resolve))).resolves.toEqual('1.2');
+      return expect(new Promise(resolve => stream.on('version', resolve))).resolves.toBe('1.2');
     });
 
-    it('should throw on an unknown SPARQL version', async () => {
+    it('should throw on an unknown SPARQL version', async() => {
       return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
 {
   "head": { "vars": [], "version": "1.2-unknown" },
@@ -183,8 +184,8 @@ describe('SparqlJsonParser', () => {
 `)))).rejects.toThrow('Detected unsupported version: 1.2-unknown');
     });
 
-    it('should convert a SPARQL JSON response', async () => {
-      return expect(await arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
+    it('should convert a SPARQL JSON response', async() => {
+      return await expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
 {
   "head": { "vars": [ "book", "library" ] },
   "results": {
@@ -197,16 +198,16 @@ describe('SparqlJsonParser', () => {
     ]
   }
 }
-`)))).toEqual([
+`)))).resolves.toEqual([
         { '?book': DF.namedNode('http://example.org/book/book1'), '?library': DF.namedNode('http://example.org/book/library1') },
         { '?book': DF.namedNode('http://example.org/book/book2'), '?library': DF.namedNode('http://example.org/book/library2') },
         { '?book': DF.namedNode('http://example.org/book/book3'), '?library': DF.namedNode('http://example.org/book/library3') },
         { '?book': DF.namedNode('http://example.org/book/book4'), '?library': DF.namedNode('http://example.org/book/library4') },
         { '?book': DF.namedNode('http://example.org/book/book5'), '?library': DF.namedNode('http://example.org/book/library5') },
-]);
+      ]);
     });
 
-    it('should convert a SPARQL JSON response and emit the variables', async () => {
+    it('should convert a SPARQL JSON response and emit the variables', async() => {
       const stream = parser.parseJsonResultsStream(streamifyString(`
 {
   "head": { "vars": [ "book", "library" ] },
@@ -217,13 +218,14 @@ describe('SparqlJsonParser', () => {
   }
 }
 `));
-      return expect(new Promise((resolve) => stream.on('variables', resolve))).resolves.toEqualRdfTermArray([
-        DF.variable('book'), DF.variable('library')
+      return expect(new Promise(resolve => stream.on('variables', resolve))).resolves.toEqualRdfTermArray([
+        DF.variable('book'),
+        DF.variable('library'),
       ]);
     });
 
-    it('should convert a SPARQL JSON response with nested triples', async () => {
-      return expect(await arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
+    it('should convert a SPARQL JSON response with nested triples', async() => {
+      return await expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
 {
   "head": { "vars": [ "book" ] },
   "results": {
@@ -251,18 +253,18 @@ describe('SparqlJsonParser', () => {
     ]
   }
 }
-`)))).toEqual([
-  {
-    '?book': DF.quad(
-      DF.namedNode('http://example.org/alice'),
-      DF.namedNode('http://example.org/name'),
-      DF.literal('Alice', DF.namedNode('http://www.w3.org/2001/XMLSchema#string')),
-  ),
-  },
-]);
+`)))).resolves.toEqual([
+        {
+          '?book': DF.quad(
+            DF.namedNode('http://example.org/alice'),
+            DF.namedNode('http://example.org/name'),
+            DF.literal('Alice', DF.namedNode('http://www.w3.org/2001/XMLSchema#string')),
+          ),
+        },
+      ]);
     });
 
-    it('should emit an error on a SPARQL JSON response with invald nested triples', async () => {
+    it('should emit an error on a SPARQL JSON response with invald nested triples', async() => {
       return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString(`
 {
   "head": { "vars": [ "book" ] },
@@ -289,25 +291,25 @@ describe('SparqlJsonParser', () => {
 `)))).rejects.toThrow('Invalid quoted triple');
     });
 
-    it('should reject a boolean payload', async () => {
+    it('should reject a boolean payload', async() => {
       return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString(`{"head": {}, "boolean": true}`)))).rejects.toBeTruthy();
     });
 
-    it('should reject an empty payload', async () => {
+    it('should reject an empty payload', async() => {
       return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString('{}')))).rejects.toBeTruthy();
     });
 
-    it('should reject on an invalid JSON', async () => {
+    it('should reject on an invalid JSON', async() => {
       return expect(arrayifyStream(parser.parseJsonResultsStream(streamifyString('{')))).rejects.toBeTruthy();
     });
 
-    it('should emit an error on an erroring stream', async () => {
+    it('should emit an error on an erroring stream', async() => {
       const errorStream = new PassThrough();
       errorStream._read = () => errorStream.emit('error', new Error('Some stream error'));
       return expect(arrayifyStream(parser.parseJsonResultsStream(errorStream))).rejects.toBeTruthy();
     });
 
-    it('should handle meadata in a SPARQL JSON response', async () => {
+    it('should handle meadata in a SPARQL JSON response', async() => {
       const stream = parser.parseJsonResultsStream(streamifyString(`
 {
   "head": { "vars": [ "book", "library" ] },
@@ -319,10 +321,10 @@ describe('SparqlJsonParser', () => {
   "metadata": { "httpRequests": 0 }
 }
 `));
-      return expect(await new Promise((resolve, reject) => {
+      return await expect(new Promise((resolve, reject) => {
         stream.on('metadata', resolve);
         stream.on('end', reject);
-      })).toEqual({ "httpRequests": 0 });
+      })).resolves.toEqual({ httpRequests: 0 });
     });
   });
 
@@ -353,13 +355,13 @@ describe('SparqlJsonParser', () => {
 
     it('should convert bindings with languaged literals', () => {
       return expect(parser.parseJsonBindings({
-        book: { 'type': 'literal', 'value': 'abc', 'xml:lang': 'en-us' },
+        book: { type: 'literal', value: 'abc', 'xml:lang': 'en-us' },
       })).toEqual({ '?book': DF.literal('abc', 'en-us') });
     });
 
     it('should convert bindings with languaged literals with direction', () => {
       return expect(parser.parseJsonBindings({
-        book: { 'type': 'literal', 'value': 'abc', 'xml:lang': 'en-us', 'its:dir': 'ltr' },
+        book: { type: 'literal', value: 'abc', 'xml:lang': 'en-us', 'its:dir': 'ltr' },
       })).toEqual({ '?book': DF.literal('abc', { language: 'en-us', direction: 'ltr' }) });
     });
 
@@ -382,18 +384,18 @@ describe('SparqlJsonParser', () => {
           value: {
             subject: {
               type: 'uri',
-              value: 'http://example.org/alice'
+              value: 'http://example.org/alice',
             },
             predicate: {
               type: 'uri',
-              value: 'http://example.org/name'
+              value: 'http://example.org/name',
             },
-            'object': {
+            object: {
               type: 'literal',
               value: 'Alice',
-              datatype: 'http://example.org/Type'
+              datatype: 'http://example.org/Type',
             },
-          }
+          },
         },
       })).toEqual({
         '?book': DF.quad(
@@ -414,42 +416,42 @@ describe('SparqlJsonParser', () => {
               value: {
                 subject: {
                   type: 'uri',
-                  value: 'http://example.org/alice'
+                  value: 'http://example.org/alice',
                 },
                 predicate: {
                   type: 'uri',
-                  value: 'http://example.org/name'
+                  value: 'http://example.org/name',
                 },
-                'object': {
+                object: {
                   type: 'literal',
                   value: 'Alice',
-                  datatype: 'http://example.org/Type'
+                  datatype: 'http://example.org/Type',
                 },
-              }
+              },
             },
             predicate: {
               type: 'uri',
-              value: 'http://example.org/sameAs'
+              value: 'http://example.org/sameAs',
             },
-            'object': {
+            object: {
               type: 'triple',
               value: {
                 subject: {
                   type: 'uri',
-                  value: 'http://example.org/alice'
+                  value: 'http://example.org/alice',
                 },
                 predicate: {
                   type: 'uri',
-                  value: 'http://example.org/name'
+                  value: 'http://example.org/name',
                 },
-                'object': {
+                object: {
                   type: 'literal',
                   value: 'Alice',
-                  datatype: 'http://example.org/Type'
+                  datatype: 'http://example.org/Type',
                 },
-              }
+              },
             },
-          }
+          },
         },
       })).toEqual({
         '?book': DF.quad(
@@ -475,13 +477,13 @@ describe('SparqlJsonParser', () => {
           value: {
             subject: {
               type: 'uri',
-              value: 'http://example.org/alice'
+              value: 'http://example.org/alice',
             },
             predicate: {
               type: 'uri',
-              value: 'http://example.org/name'
+              value: 'http://example.org/name',
             },
-          }
+          },
         },
       })).toThrow('Invalid quoted triple');
     });
@@ -491,7 +493,7 @@ describe('SparqlJsonParser', () => {
         book1: { type: 'uri', value: 'http://example.org/book/book6' },
         book2: { type: 'bnode', value: 'abc' },
         book3: { type: 'literal', value: 'abc' },
-        book4: { 'type': 'literal', 'value': 'abc', 'xml:lang': 'en-us' },
+        book4: { type: 'literal', value: 'abc', 'xml:lang': 'en-us' },
         book5: { type: 'literal', value: 'abc', datatype: 'http://ex' },
       })).toEqual({
         '?book1': DF.namedNode('http://example.org/book/book6'),
@@ -510,41 +512,41 @@ describe('SparqlJsonParser', () => {
 
     it('should throw on an unsupported media type version', () => {
       return expect(() => parser.parseJsonBoolean({}, 'version-unknown'))
-          .toThrow('Detected unsupported version as media type parameter: version-unknown');
+        .toThrow('Detected unsupported version as media type parameter: version-unknown');
     });
 
     it('should convert an true SPARQL JSON boolean response', () => {
-      return expect(parser.parseJsonBoolean({ boolean: true })).toEqual(true);
+      return expect(parser.parseJsonBoolean({ boolean: true })).toBe(true);
     });
 
     it('should convert an false SPARQL JSON boolean response', () => {
-      return expect(parser.parseJsonBoolean({ boolean: false })).toEqual(false);
+      return expect(parser.parseJsonBoolean({ boolean: false })).toBe(false);
     });
   });
 
   describe('#parseJsonBooleanStream', () => {
-    it('should reject on an empty SPARQL JSON response', async () => {
+    it('should reject on an empty SPARQL JSON response', async() => {
       return expect(parser.parseJsonBooleanStream(streamifyString(`{}`))).rejects.toBeTruthy();
     });
 
-    it('should convert a true SPARQL JSON boolean response', async () => {
-      return expect(await parser.parseJsonBooleanStream(streamifyString(`{ "boolean": true }`))).toEqual(true);
+    it('should convert a true SPARQL JSON boolean response', async() => {
+      return await expect(parser.parseJsonBooleanStream(streamifyString(`{ "boolean": true }`))).resolves.toBe(true);
     });
 
     it('should throw on an unsupported media type version', async() => {
       return await expect(parser.parseJsonBooleanStream(streamifyString(`{ "boolean": true }`), 'version-unknown'))
-          .rejects.toThrow('Detected unsupported version as media type parameter: version-unknown');
+        .rejects.toThrow('Detected unsupported version as media type parameter: version-unknown');
     });
 
-    it('should convert a false SPARQL JSON boolean response', async () => {
-      return expect(await parser.parseJsonBooleanStream(streamifyString(`{ "boolean": false }`))).toEqual(false);
+    it('should convert a false SPARQL JSON boolean response', async() => {
+      return await expect(parser.parseJsonBooleanStream(streamifyString(`{ "boolean": false }`))).resolves.toBe(false);
     });
 
-    it('should reject on an invalid JSON', async () => {
+    it('should reject on an invalid JSON', async() => {
       return expect(() => parser.parseJsonBooleanStream(streamifyString(`{`))).rejects.toBeTruthy();
     });
 
-    it('should reject on an erroring stream', async () => {
+    it('should reject on an erroring stream', async() => {
       const errorStream = new PassThrough();
       errorStream._read = () => errorStream.emit('error', new Error('Some stream error'));
       return expect(parser.parseJsonBooleanStream(errorStream)).rejects.toBeTruthy();

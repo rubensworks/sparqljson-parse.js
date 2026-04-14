@@ -1,8 +1,7 @@
-import {DataFactory} from "rdf-data-factory";
-import * as RDF from "@rdfjs/types";
-import {Transform} from "readable-stream";
+import type * as RDF from '@rdfjs/types';
+import { DataFactory } from 'rdf-data-factory';
+import { Transform } from 'readable-stream';
 
-// tslint:disable-next-line:no-var-requires
 const JsonParser = require('@bergos/jsonparse');
 
 /**
@@ -10,7 +9,6 @@ const JsonParser = require('@bergos/jsonparse');
  * @see https://www.w3.org/TR/sparql11-results-json/
  */
 export class SparqlJsonParser {
-
   public static SUPPORTED_VERSIONS: string[] = [
     '1.2',
     '1.2-basic',
@@ -22,12 +20,12 @@ export class SparqlJsonParser {
   private readonly suppressMissingStreamResultsError: boolean;
   private readonly parseUnsupportedVersions: boolean;
 
-  constructor(settings?: ISettings) {
+  public constructor(settings?: ISettings) {
     settings = settings || {};
     this.dataFactory = settings.dataFactory || new DataFactory();
-    this.prefixVariableQuestionMark = !!settings.prefixVariableQuestionMark;
+    this.prefixVariableQuestionMark = Boolean(settings.prefixVariableQuestionMark);
     this.suppressMissingStreamResultsError = settings.suppressMissingStreamResultsError ?? true;
-    this.parseUnsupportedVersions = !!settings.parseUnsupportedVersions;
+    this.parseUnsupportedVersions = Boolean(settings.parseUnsupportedVersions);
   }
 
   /**
@@ -62,7 +60,9 @@ export class SparqlJsonParser {
    * @return {NodeJS.ReadableStream} A stream of bindings.
    */
   public parseJsonResultsStream(sparqlResponseStream: NodeJS.ReadableStream, version?: string): NodeJS.ReadableStream {
-    const errorListener = (error: Error) => resultStream.emit('error', error);
+    const errorListener = (error: Error): void => {
+      resultStream.emit('error', error);
+    };
     sparqlResponseStream.on('error', errorListener);
 
     const jsonParser = new JsonParser();
@@ -70,33 +70,36 @@ export class SparqlJsonParser {
     let variablesFound = false;
     let resultsFound = false;
     jsonParser.onValue = (value: any) => {
-      if(jsonParser.key === "vars" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
-        resultStream.emit('variables', value.map((v: string) => this.dataFactory.variable!(v)));
+      if (jsonParser.key === 'vars' && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
+        resultStream.emit('variables', value.map((variable: string) => this.dataFactory.variable!(variable)));
         variablesFound = true;
-      } else if(jsonParser.key === "link" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
+      } else if (jsonParser.key === 'link' && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
         resultStream.emit('link', value);
-      } else if(jsonParser.key === "version" && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
+      } else if (jsonParser.key === 'version' && jsonParser.stack.length === 2 && jsonParser.stack[1].key === 'head') {
         if (!this.isValidVersion(value)) {
-          resultStream.emit("error", new Error(`Detected unsupported version: ${value}`));
+          resultStream.emit('error', new Error(`Detected unsupported version: ${value}`));
         }
         resultStream.emit('version', value);
-      } else if(jsonParser.key === "results" && jsonParser.stack.length === 1) {
+      } else if (jsonParser.key === 'results' && jsonParser.stack.length === 1) {
         resultsFound = true;
-      } else if(typeof jsonParser.key === 'number' && jsonParser.stack.length === 3 && jsonParser.stack[1].key === 'results' && jsonParser.stack[2].key === 'bindings') {
+      } else if (typeof jsonParser.key === 'number' &&
+          jsonParser.stack.length === 3 &&
+          jsonParser.stack[1].key === 'results' &&
+          jsonParser.stack[2].key === 'bindings') {
         try {
-          resultStream.push(this.parseJsonBindings(value))
-        } catch (error) {
-          resultStream.emit("error", error);
+          resultStream.push(this.parseJsonBindings(value));
+        } catch (error: unknown) {
+          resultStream.emit('error', error);
         }
-      } else if(jsonParser.key === "metadata" && jsonParser.stack.length === 1) {
+      } else if (jsonParser.key === 'metadata' && jsonParser.stack.length === 1) {
         resultStream.emit('metadata', value);
       }
-    }
+    };
 
     const resultStream = sparqlResponseStream
-      .on("end", _ => {
+      .on('end', () => {
         if (!resultsFound && !this.suppressMissingStreamResultsError) {
-          resultStream.emit("error", new Error("No valid SPARQL query results were found."))
+          resultStream.emit('error', new Error('No valid SPARQL query results were found.'));
         } else if (!variablesFound) {
           resultStream.emit('variables', []);
         }
@@ -106,7 +109,7 @@ export class SparqlJsonParser {
         transform(chunk: any, encoding: string, callback: (error?: Error | null, data?: any) => void) {
           jsonParser.write(chunk);
           callback();
-        }
+        },
       }));
 
     if (version && !this.isValidVersion(version)) {
@@ -125,7 +128,7 @@ export class SparqlJsonParser {
     const bindings: IBindings = {};
     for (const key in rawBindings) {
       const rawValue: any = rawBindings[key];
-      bindings[this.prefixVariableQuestionMark ? ('?' + key) : key] = this.parseJsonValue(rawValue);
+      bindings[this.prefixVariableQuestionMark ? `?${key}` : key] = this.parseJsonValue(rawValue);
     }
     return bindings;
   }
@@ -138,38 +141,39 @@ export class SparqlJsonParser {
   public parseJsonValue(rawValue: any): RDF.Term {
     let value: RDF.Term;
     switch (rawValue.type) {
-    case 'bnode':
-      value = this.dataFactory.blankNode(rawValue.value);
-      break;
-    case 'literal':
-      if (rawValue['xml:lang']) {
-        const language = rawValue['xml:lang'];
-        const direction = rawValue['its:dir'];
-        value = this.dataFactory.literal(rawValue.value, { language, direction });
-      } else if (rawValue.datatype) {
-        value = this.dataFactory.literal(rawValue.value, this.dataFactory.namedNode(rawValue.datatype));
-      } else {
-        value = this.dataFactory.literal(rawValue.value);
-      }
-      break;
-    case 'typed-literal':
+      case 'bnode':
+        value = this.dataFactory.blankNode(rawValue.value);
+        break;
+      case 'literal':
+        if (rawValue['xml:lang']) {
+          const language = rawValue['xml:lang'];
+          const direction = rawValue['its:dir'];
+          value = this.dataFactory.literal(rawValue.value, { language, direction });
+        } else if (rawValue.datatype) {
+          value = this.dataFactory.literal(rawValue.value, this.dataFactory.namedNode(rawValue.datatype));
+        } else {
+          value = this.dataFactory.literal(rawValue.value);
+        }
+        break;
+      case 'typed-literal':
       // Virtuoso uses this non-spec-compliant way of defining typed literals
-      value = this.dataFactory.literal(rawValue.value, this.dataFactory.namedNode(rawValue.datatype));
-      break;
-    case 'triple':
-      const tripleValue = rawValue.value;
-      if (!tripleValue || !tripleValue.subject || !tripleValue.predicate || !tripleValue.object) {
-        throw new Error('Invalid quoted triple: ' + JSON.stringify(rawValue));
-      }
-      value = this.dataFactory.quad(
+        value = this.dataFactory.literal(rawValue.value, this.dataFactory.namedNode(rawValue.datatype));
+        break;
+      case 'triple': {
+        const tripleValue = rawValue.value;
+        if (!tripleValue || !tripleValue.subject || !tripleValue.predicate || !tripleValue.object) {
+          throw new Error(`Invalid quoted triple: ${JSON.stringify(rawValue)}`);
+        }
+        value = this.dataFactory.quad(
         <RDF.Quad_Subject> this.parseJsonValue(tripleValue.subject),
         <RDF.Quad_Predicate> this.parseJsonValue(tripleValue.predicate),
         <RDF.Quad_Object> this.parseJsonValue(tripleValue.object),
-      );
-      break;
-    default:
-      value = this.dataFactory.namedNode(rawValue.value);
-      break;
+        );
+        break;
+      }
+      default:
+        value = this.dataFactory.namedNode(rawValue.value);
+        break;
     }
     return value;
   }
@@ -206,17 +210,16 @@ export class SparqlJsonParser {
       const parser = new JsonParser();
       parser.onError = reject;
       parser.onValue = (value: any) => {
-        if(parser.key === "boolean" && typeof value === 'boolean' && parser.stack.length === 1) {
+        if (parser.key === 'boolean' && typeof value === 'boolean' && parser.stack.length === 1) {
           resolve(value);
         }
-      }
+      };
       sparqlResponseStream
-          .on('error', reject)
-          .on('data', d => parser.write(d))
-          .on('end', () => reject(new Error('No valid ASK response was found.')));
+        .on('error', reject)
+        .on('data', (data: Buffer | string) => parser.write(data))
+        .on('end', () => reject(new Error('No valid ASK response was found.')));
     });
   }
-
 }
 
 /**
@@ -244,7 +247,4 @@ export interface ISettings {
 /**
  * A bindings object.
  */
-export interface IBindings {
-  [key: string]: RDF.Term;
-}
-
+export type IBindings = Record<string, RDF.Term>;
